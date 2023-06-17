@@ -26,7 +26,7 @@ import axios from 'axios';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-// import InputModal from '../components/modal'
+import InputModal from '../components/modal'
 import { MetadataContext } from '../hooks/MetadataContext';
 
 const TABLE_HEAD = [
@@ -211,7 +211,7 @@ export default function InvitationPage() {
           >
             New User
           </Button>
-          {/* <InputModal open={openModal} onClose={handleCloseModal} /> */}
+          <InputModal open={openModal} onClose={handleCloseModal} />
         </Stack>
 
         <Card>

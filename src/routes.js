@@ -10,7 +10,7 @@ import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
-// import InvitationPage from './pages/InvitationPage';
+import InvitationPage from './pages/InvitationPage';
 
 // ----------------------------------------------------------------------
 
@@ -19,10 +19,14 @@ export default function Router() {
 
   useEffect(() => {
       const sessionExists = getCookie('session');
+      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
+      console.log(sessionExists, isLoggedIn);
       if (sessionExists) {
         setIsLoggedIn(true);
+        console.log('Setting login...');
+        sessionStorage.setItem('isLoggedIn', 'true'); // Store the logged-in state in sessionStorage
       } else {
-        setIsLoggedIn(false);
+        setIsLoggedIn(isLoggedIn);
       }
   }, []);
 
@@ -37,6 +41,7 @@ export default function Router() {
     return null;
   };
 
+  console.log('State before route : ', isLoggedIn);
   const routes = useRoutes([
     {
       path: '/dashboard',
@@ -47,12 +52,16 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
-        // { path: 'invitation', element: <InvitationPage /> },
+        { path: 'invitation', element: <InvitationPage /> },
       ],
     },
     {
+      path: '/',
+      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
+    },
+    {
       path: 'login',
-      element: <LoginPage />,
+      element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <LoginPage />,
     },
     {
       element: <SimpleLayout />,

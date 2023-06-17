@@ -1,5 +1,4 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 // import { useCookies } from 'react-cookie';
 import axios from 'axios';
 // @mui
@@ -12,12 +11,10 @@ import { MetadataContext } from '../../../hooks/MetadataContext';
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const navigate = useNavigate();
 
   const [userLogin, setUserLogin] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
-  // const [cookies, setCookie] = useCookies(['session']);
 
   const { metadata, updateMetadata } = useContext(MetadataContext);
 
@@ -25,40 +22,73 @@ export default function LoginForm() {
     setUserLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleClick = () => {
-    axios
-      .post('http://localhost:5000/user/login', JSON.stringify(userLogin), {
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/user/login', JSON.stringify(userLogin), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
-      })
-      .then((response) => {
-        console.log('RES Login', response.data);
-        if (response.data.code === 200) {
-          // const userCookie = getCookie('session')
-          // setCookie('user-session', userCookie);
-          // console.log(cookies);
-          const res = response.data.message.Result;
-
-          updateMetadata({
-            userId: res[0].user_id,
-            shortName: res[0].short_name,
-            branchCode: res[0].branch_code,
-            levelId: res[0].level_id,
-          });
-          
-          navigate('/dashboard', { replace: true });
-        } else {
-          setErrorMessage(response.data.message.Description);
-          console.log(errorMessage);
-        }
-      })
-      .catch((error) => {
-        setErrorMessage(`${error.code} - ${error.message}`);
-        console.log(error);
       });
+
+      console.log('RES Login', response.data);
+
+      if (response.data.code === 200) {
+        const res = response.data.message.Result;
+
+        updateMetadata({
+          userId: res[0].user_id,
+          shortName: res[0].short_name,
+          branchCode: res[0].branch_code,
+          levelId: res[0].level_id,
+        });
+
+        window.location.reload();
+
+      } else {
+        setErrorMessage(response.data.message.Description);
+        console.log(errorMessage);
+      }
+    } catch (error) {
+      setErrorMessage(`${error.code} - ${error.message}`);
+      console.log(error);
+    }
 
       console.log('Metadata', metadata);
   };
+
+  // const handleLogin = () => {
+  //   axios
+  //     .post('http://localhost:5000/user/login', JSON.stringify(userLogin), {
+  //       headers: { 'Content-Type': 'application/json' },
+  //       withCredentials: true,
+  //     })
+  //     .then((response) => {
+  //       console.log('RES Login', response.data);
+  //       if (response.data.code === 200) {
+  //         // const userCookie = getCookie('session')
+  //         // setCookie('user-session', userCookie);
+  //         // console.log(cookies);
+  //         const res = response.data.message.Result;
+
+  //         updateMetadata({
+  //           userId: res[0].user_id,
+  //           shortName: res[0].short_name,
+  //           branchCode: res[0].branch_code,
+  //           levelId: res[0].level_id,
+  //         });
+          
+  //         navigate('/dashboard', { replace: true });
+  //       } else {
+  //         setErrorMessage(response.data.message.Description);
+  //         console.log(errorMessage);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       setErrorMessage(`${error.code} - ${error.message}`);
+  //       console.log(error);
+  //     });
+
+  //     console.log('Metadata', metadata);
+  // };
 
   return (
     <>
@@ -91,7 +121,7 @@ export default function LoginForm() {
         </Link>
       </Stack>
 
-      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
+      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleLogin}>
         Login
       </LoadingButton>
       {errorMessage ?? <h2 style={{ textAlign: 'center', color: 'red' }}>{errorMessage}</h2>}
