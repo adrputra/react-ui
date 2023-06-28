@@ -26,8 +26,10 @@ import axios from 'axios';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-import InputModal from '../components/modal'
+import InputModal from '../components/modal';
 import { MetadataContext } from '../hooks/MetadataContext';
+
+const { REACT_APP_GET_INVITATION_LIST } = process.env;
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -81,9 +83,11 @@ export default function InvitationPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState({});
 
   const [invitationData, setInvitationData] = useState();
+
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   const [openModal, setOpenModal] = useState(false);
 
@@ -105,18 +109,18 @@ export default function InvitationPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = invitationData.map((n) => n.name);
+      const newSelecteds = invitationData.map((n) => n.code);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, code) => {
+    const selectedIndex = selected.indexOf(code);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, code);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -154,40 +158,47 @@ export default function InvitationPage() {
   const req = {
     userId: metadata.userId,
   };
-  console.log('REQ Invitation List', req);
 
-  const InquiryInvitationList = () => {
-    axios
-      .post('http://localhost:5000/invitationlist', JSON.stringify(req), {
+  const InquiryInvitationList = async () => {
+    console.log('REQ Invitation List', req);
+    try {
+      const response = await axios.post(REACT_APP_GET_INVITATION_LIST, JSON.stringify(req), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
-      })
-      .then((response) => {
-        console.log('RES Invitation List', response.data);
-        if (response.data.code === 200) {
-          // const userCookie = getCookie('session')
-          // setCookie('user-session', userCookie);
-          // console.log(cookies);
-          const filteredUsers = applySortFilter(
-            response.data.message.Result,
-            getComparator(order, orderBy),
-            filterName
-          );
-          setInvitationData(filteredUsers);
-        } else {
-          setErrorMessage(response.data.message.Description);
-          console.log('Err Message', errorMessage);
-        }
-      })
-      .catch((error) => {
-        setErrorMessage(`${error.code} - ${error.message}`);
-        console.log('Err Message', error);
       });
+
+      console.log('RES Invitation List', response.data);
+
+      if (response.data.code === 200) {
+        // const userCookie = getCookie('session')
+        // setCookie('user-session', userCookie);
+        // console.log(cookies);
+        setInvitationData(response.data.message.Result);
+      } else {
+        setErrorMessage({ msg: response.data.message.Description, code: 'error' });
+        console.log(errorMessage);
+      }
+    } catch (error) {
+      setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
+      console.log(error);
+    } finally {
+      console.log('Invitation Data Length', invitationData ? invitationData.length : 0);
+      setTimeout(() => {
+        setErrorMessage({});
+      }, 5000);
+    }
   };
 
   useEffect(() => {
     InquiryInvitationList();
   }, []);
+
+  useEffect(() => {
+    if (invitationData) {
+      const sortedFilteredUsers = applySortFilter(invitationData, getComparator(order, orderBy), filterName);
+      setFilteredUsers(sortedFilteredUsers); // Store the filtered users in state
+    }
+  }, [invitationData, order, orderBy, filterName]);
 
   return (
     <>
@@ -196,25 +207,25 @@ export default function InvitationPage() {
       </Helmet>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        {errorMessage &&
-            <Snackbar open autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-              <Alert variant="filled" severity="error" sx={{ width: '100%' }}>
-                {errorMessage}
+          {Object.keys(errorMessage).length > 0 && (
+            <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+              <Alert variant="filled" severity={errorMessage.code} sx={{ width: '100%' }}>
+                {errorMessage.msg}
               </Alert>
             </Snackbar>
-        }
+          )}
           <Typography variant="h4" gutterBottom>
             User
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpenModal}
-          >
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModal}>
             New User
           </Button>
-          <InputModal open={openModal} onClose={handleCloseModal} />
+          <InputModal open={openModal} onClose={handleCloseModal} InquiryInvitationList={InquiryInvitationList}/>
         </Stack>
 
         <Card>
+          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -228,15 +239,15 @@ export default function InvitationPage() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {invitationData &&
-                    invitationData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {filteredUsers &&
+                    filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                       const { name, code, level, phone_number } = row;
-                      const selectedUser = selected.indexOf(name) !== -1;
+                      const selectedUser = selected.indexOf(code) !== -1;
 
                       return (
                         <TableRow hover key={code} tabIndex={-1} role="checkbox" selected={selectedUser}>
                           <TableCell padding="checkbox">
-                            <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
+                            <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, code)} />
                           </TableCell>
 
                           {/* <TableCell component="th" scope="row" padding="none">
@@ -273,8 +284,46 @@ export default function InvitationPage() {
               </Table>
             </TableContainer>
           </Scrollbar>
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={invitationData ? invitationData.length : 0}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Card>
       </Container>
+      <Popover
+        open={Boolean(open)}
+        anchorEl={open}
+        onClose={handleCloseMenu}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        PaperProps={{
+          sx: {
+            p: 1,
+            width: 140,
+            '& .MuiMenuItem-root': {
+              px: 1,
+              typography: 'body2',
+              borderRadius: 0.75,
+            },
+          },
+        }}
+      >
+        <MenuItem>
+          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+          Edit
+        </MenuItem>
+
+        <MenuItem sx={{ color: 'error.main' }}>
+          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+          Delete
+        </MenuItem>
+      </Popover>
     </>
   );
 }
