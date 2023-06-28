@@ -1,4 +1,4 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 // layouts
 import DashboardLayout from './layouts/dashboard';
@@ -16,6 +16,7 @@ import InvitationPage from './pages/InvitationPage';
 
 export default function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
       const sessionExists = getCookie('session');
@@ -41,6 +42,17 @@ export default function Router() {
     return null;
   };
 
+  // const currentLocation = "/dashboard/products";
+  let currentLocation;
+  console.log(location.pathname)
+  if (isLoggedIn){
+    if (location.pathname !== '/login') {
+      localStorage.setItem('currentLocation', location.pathname);
+    }
+    currentLocation = localStorage.getItem('currentLocation') || '/dashboard/app';
+  }
+  
+
   console.log('State before route : ', isLoggedIn);
   const routes = useRoutes([
     {
@@ -61,7 +73,7 @@ export default function Router() {
     },
     {
       path: 'login',
-      element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <LoginPage />,
+      element: isLoggedIn ? <Navigate to={currentLocation} /> : <LoginPage />,
     },
     {
       element: <SimpleLayout />,
