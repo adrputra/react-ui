@@ -2,19 +2,19 @@ import { useState, useContext } from 'react';
 // import { useCookies } from 'react-cookie';
 import axios from 'axios';
 // @mui
-import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
+import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Snackbar, Alert } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import Iconify from '../../../components/iconify';
 import { MetadataContext } from '../../../hooks/MetadataContext';
 
+const { REACT_APP_LOGIN_API } = process.env;
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-
   const [userLogin, setUserLogin] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState({});
 
   const { metadata, updateMetadata } = useContext(MetadataContext);
 
@@ -24,7 +24,7 @@ export default function LoginForm() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/user/login', JSON.stringify(userLogin), {
+      const response = await axios.post(REACT_APP_LOGIN_API, JSON.stringify(userLogin), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       });
@@ -42,56 +42,31 @@ export default function LoginForm() {
         });
 
         window.location.reload();
-
       } else {
-        setErrorMessage(response.data.message.Description);
+        setErrorMessage({ msg: response.data.message.Description, code: 'error' });
         console.log(errorMessage);
       }
     } catch (error) {
-      setErrorMessage(`${error.code} - ${error.message}`);
+      setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
       console.log(error);
+    } finally {
+      setTimeout(() => {
+        setErrorMessage({});
+      }, 5000);
     }
 
-      console.log('Metadata', metadata);
+    console.log('Metadata', metadata);
   };
-
-  // const handleLogin = () => {
-  //   axios
-  //     .post('http://localhost:5000/user/login', JSON.stringify(userLogin), {
-  //       headers: { 'Content-Type': 'application/json' },
-  //       withCredentials: true,
-  //     })
-  //     .then((response) => {
-  //       console.log('RES Login', response.data);
-  //       if (response.data.code === 200) {
-  //         // const userCookie = getCookie('session')
-  //         // setCookie('user-session', userCookie);
-  //         // console.log(cookies);
-  //         const res = response.data.message.Result;
-
-  //         updateMetadata({
-  //           userId: res[0].user_id,
-  //           shortName: res[0].short_name,
-  //           branchCode: res[0].branch_code,
-  //           levelId: res[0].level_id,
-  //         });
-          
-  //         navigate('/dashboard', { replace: true });
-  //       } else {
-  //         setErrorMessage(response.data.message.Description);
-  //         console.log(errorMessage);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       setErrorMessage(`${error.code} - ${error.message}`);
-  //       console.log(error);
-  //     });
-
-  //     console.log('Metadata', metadata);
-  // };
 
   return (
     <>
+      {Object.keys(errorMessage).length > 0 && (
+        <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+          <Alert variant="filled" severity={errorMessage.code} sx={{ width: '100%' }}>
+            {errorMessage.msg}
+          </Alert>
+        </Snackbar>
+      )}
       <Stack spacing={3}>
         <TextField name="userId" label="Email address" onChange={handleChange} />
 
@@ -113,7 +88,6 @@ export default function LoginForm() {
       </Stack>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
         <Checkbox name="remember" label="Remember me">
-          {' '}
           Remember Me{' '}
         </Checkbox>
         <Link variant="subtitle2" underline="hover">
@@ -124,7 +98,6 @@ export default function LoginForm() {
       <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleLogin}>
         Login
       </LoadingButton>
-      {errorMessage ?? <h2 style={{ textAlign: 'center', color: 'red' }}>{errorMessage}</h2>}
     </>
   );
 }
