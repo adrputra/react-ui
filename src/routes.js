@@ -14,6 +14,18 @@ import InvitationPage from './pages/InvitationPage';
 
 // ----------------------------------------------------------------------
 
+const getCookie = (name) => {
+  const cookieValue = document.cookie.split(';')
+    .map(cookie => cookie.trim())
+    .find(cookie => cookie.startsWith(`${name}=`));
+
+  if (cookieValue) {
+    return cookieValue.substring(name.length + 1);
+  } 
+    return null;
+  
+};
+
 export default function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
@@ -21,7 +33,8 @@ export default function Router() {
   useEffect(() => {
       const sessionExists = getCookie('session');
       const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
-      console.log(sessionExists, isLoggedIn);
+      console.log('Inside Use Effect ',sessionExists, isLoggedIn);
+      console.log('Cookie ', document.cookie);
       if (sessionExists) {
         setIsLoggedIn(true);
         console.log('Setting login...');
@@ -30,17 +43,6 @@ export default function Router() {
         setIsLoggedIn(isLoggedIn);
       }
   }, []);
-
-  const getCookie = (name) => {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i += 1) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith(`${name}=`)) {
-        return cookie.substring(name.length + 1);
-      }
-    }
-    return null;
-  };
 
   // const currentLocation = "/dashboard/products";
   let currentLocation;
