@@ -5,10 +5,13 @@ import axios from 'axios';
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Snackbar, Alert } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
+import Cookies from "js-cookie"
 import Iconify from '../../../components/iconify';
 import { MetadataContext } from '../../../hooks/MetadataContext';
+import { EncryptData, GetMetadata } from '../../../utils/Enigma';
 
-const { REACT_APP_LOGIN_API } = process.env;
+
+const { REACT_APP_LOGIN_API, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
@@ -23,39 +26,50 @@ export default function LoginForm() {
   };
 
   const handleLogin = async () => {
+    const encryptedRequest =  EncryptData(userLogin, REACT_APP_ENCRYPTION_SECRET)
+    const req = {
+      request: encryptedRequest
+    }
     try {
-      const response = await axios.post(REACT_APP_LOGIN_API, JSON.stringify(userLogin), {
+      const response = await axios.post(REACT_APP_LOGIN_API, JSON.stringify(req), {
         headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
       });
 
-      console.log('RES Login', response.data);
+      const { decryptedRes, decodedRes } = GetMetadata(response.data.message.token, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET)
+
+      console.info('RES Login', decryptedRes);
 
       if (response.data.code === 200) {
-        const res = response.data.message.Result;
+
+        const currentTimestamp = new Date().getTime();
+        const timeUntilExpiration = (decodedRes.exp * 1000) - currentTimestamp;
+        console.log(new Date(Date.now() + timeUntilExpiration));
+
+        Cookies.set('session', response.data.message.token, { expires: new Date(Date.now() + timeUntilExpiration) })
+        console.log(decryptedRes);
 
         updateMetadata({
-          userId: res[0].user_id,
-          shortName: res[0].short_name,
-          branchCode: res[0].branch_code,
-          levelId: res[0].level_id,
+          userId: decryptedRes.userId,
+          shortName: decryptedRes.shortName,
+          branchCode: decryptedRes.branchCode,
+          levelId: decryptedRes.levelId,
         });
 
         window.location.reload();
       } else {
         setErrorMessage({ msg: response.data.message.Description, code: 'error' });
-        console.log(errorMessage);
+        console.error(errorMessage);
       }
     } catch (error) {
       setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
-      console.log(error);
+      console.error(error);
     } finally {
       setTimeout(() => {
         setErrorMessage({});
       }, 5000);
     }
 
-    console.log('Metadata', metadata);
+    console.info('Metadata', metadata);
   };
 
   return (

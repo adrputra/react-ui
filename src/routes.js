@@ -11,7 +11,9 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import InvitationPage from './pages/InvitationPage';
+import { GetMetadata } from './utils/Enigma'
 
+const { REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
 
 const getCookie = (name) => {
@@ -26,6 +28,10 @@ const getCookie = (name) => {
   
 };
 
+const clearCookie = (name) => {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
 export default function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
@@ -33,14 +39,16 @@ export default function Router() {
   useEffect(() => {
       const sessionExists = getCookie('session');
       const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
-      console.log('Inside Use Effect ',sessionExists, isLoggedIn);
-      console.log('Cookie ', document.cookie);
+      console.log('Inside Use Effect ', sessionExists, isLoggedIn);
       if (sessionExists) {
         setIsLoggedIn(true);
         console.log('Setting login...');
-        sessionStorage.setItem('isLoggedIn', 'true'); // Store the logged-in state in sessionStorage
+        sessionStorage.setItem('isLoggedIn', true); // Store the logged-in state in sessionStorage
+        const { decryptedRes } = GetMetadata(sessionExists, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET)
+        sessionStorage.setItem('metadata', JSON.stringify(decryptedRes))
       } else {
-        setIsLoggedIn(isLoggedIn);
+        setIsLoggedIn(false);
+        sessionStorage.setItem('isLoggedIn', false); // Store the logged-in state in sessionStorage
       }
   }, []);
 

@@ -91,7 +91,7 @@ export default function InvitationPage() {
 
   const [openModal, setOpenModal] = useState(false);
 
-  const { metadata, updateMetadata } = useContext(MetadataContext);
+  const { metadata } = useContext(MetadataContext);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -203,7 +203,7 @@ export default function InvitationPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> User | Eventarry </title>
       </Helmet>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
