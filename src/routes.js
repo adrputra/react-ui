@@ -11,22 +11,10 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import InvitationPage from './pages/InvitationPage';
-import { GetMetadata } from './utils/Enigma'
+import { GetMetadata, GetCookie } from './utils/Enigma'
 
 const { REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
-
-const getCookie = (name) => {
-  const cookieValue = document.cookie.split(';')
-    .map(cookie => cookie.trim())
-    .find(cookie => cookie.startsWith(`${name}=`));
-
-  if (cookieValue) {
-    return cookieValue.substring(name.length + 1);
-  } 
-    return null;
-  
-};
 
 const clearCookie = (name) => {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -37,7 +25,7 @@ export default function Router() {
   const location = useLocation();
 
   useEffect(() => {
-      const sessionExists = getCookie('session');
+      const sessionExists = GetCookie('session');
       const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
       console.log('Inside Use Effect ', sessionExists, isLoggedIn);
       if (sessionExists) {

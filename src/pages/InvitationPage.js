@@ -26,8 +26,9 @@ import axios from 'axios';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-import InputModal from '../components/modal';
+import InputModal from '../components/AddInvitationModal';
 import { MetadataContext } from '../hooks/MetadataContext';
+import { SendRequest } from '../utils/Enigma'
 
 const { REACT_APP_GET_INVITATION_LIST } = process.env;
 
@@ -161,11 +162,9 @@ export default function InvitationPage() {
 
   const InquiryInvitationList = async () => {
     console.log('REQ Invitation List', req);
+    const postman = SendRequest(REACT_APP_GET_INVITATION_LIST)
     try {
-      const response = await axios.post(REACT_APP_GET_INVITATION_LIST, JSON.stringify(req), {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      });
+      const response = await postman.post('', JSON.stringify(req));
 
       console.log('RES Invitation List', response.data);
 

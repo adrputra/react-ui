@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { MetadataContext } from '../../hooks/MetadataContext';
+import { SendRequest } from '../../utils/Enigma'
 
 const { REACT_APP_ADD_INVITATION } = process.env;
 
@@ -50,11 +51,9 @@ export default function InputModal({ open, onClose, InquiryInvitationList }) {
 
   const addInvitation = async () => {
     console.info('REQ Add Invitation', invitationData);
+    const postman = SendRequest(REACT_APP_ADD_INVITATION)
     try {
-      const response = await axios.post(REACT_APP_ADD_INVITATION, JSON.stringify(invitationData), {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      });
+      const response = await postman.post('', JSON.stringify(invitationData));
 
       console.info('RES Add Invitation', response.data);
 

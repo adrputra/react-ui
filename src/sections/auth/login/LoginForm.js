@@ -26,6 +26,8 @@ export default function LoginForm() {
   };
 
   const handleLogin = async () => {
+    sessionStorage.removeItem('metadata');
+
     const encryptedRequest =  EncryptData(userLogin, REACT_APP_ENCRYPTION_SECRET)
     const req = {
       request: encryptedRequest
@@ -41,12 +43,9 @@ export default function LoginForm() {
 
       if (response.data.code === 200) {
 
-        const currentTimestamp = new Date().getTime();
-        const timeUntilExpiration = (decodedRes.exp * 1000) - currentTimestamp;
-        console.log(new Date(Date.now() + timeUntilExpiration));
+        const timeUntilExpiration = (new Date((decodedRes.exp + 7 * 60 * 60) * 1000))
 
-        Cookies.set('session', response.data.message.token, { expires: new Date(Date.now() + timeUntilExpiration) })
-        console.log(decryptedRes);
+        Cookies.set('session', response.data.message.token, { expires: timeUntilExpiration })
 
         updateMetadata({
           userId: decryptedRes.userId,
