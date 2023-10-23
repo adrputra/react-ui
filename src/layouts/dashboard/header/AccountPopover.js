@@ -1,10 +1,13 @@
 import { useState, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
-import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
+import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover, Snackbar, Alert } from '@mui/material';
 // mocks_
 import account from '../../../_mock/account';
 import { MetadataContext } from '../../../hooks/MetadataContext';
+import { SendRequest } from '../../../utils/Enigma';
+
+const { REACT_APP_LOGOUT_API } = process.env;
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +30,7 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
+  const [errorMessage, setErrorMessage] = useState({});
   const { metadata } = useContext(MetadataContext);
 
   const handleOpen = (event) => {
@@ -37,8 +41,47 @@ export default function AccountPopover() {
     setOpen(null);
   };
 
+  const req = {
+    sessionId: metadata.sessionId,
+  };
+
+  const handleLogout = async () => {
+    console.log('REQ Logout', req);
+
+    try {
+      const response = await SendRequest(REACT_APP_LOGOUT_API, req);
+
+      if (response.data.code === 200) {
+        setErrorMessage({ msg: response.data.message.Description, code: 'success' });
+        
+      } else {
+        setErrorMessage({ msg: response.data.message.Description, code: 'error' });
+        console.error(errorMessage);
+      }
+    } catch (error) {
+      setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
+      console.error(error);
+    } finally {
+      document.cookie = `session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.reload();
+      console.log(errorMessage);
+      setTimeout(() => {
+        setErrorMessage({});
+      }, 5000);
+    }
+  };
+
   return (
     <>
+      {Object.keys(errorMessage).length > 0 && (
+        <Snackbar open autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+          <Alert variant="filled" severity={errorMessage.code} sx={{ width: '100%' }}>
+            {errorMessage.msg}
+          </Alert>
+        </Snackbar>
+      )}
       <IconButton
         onClick={handleOpen}
         sx={{
@@ -99,7 +142,7 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={handleLogout} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </Popover>
