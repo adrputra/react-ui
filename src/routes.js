@@ -1,6 +1,7 @@
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 // layouts
+import Cookies from 'js-cookie';
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
@@ -11,29 +12,28 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import InvitationPage from './pages/InvitationPage';
-import { GetMetadata, GetCookie } from './utils/Enigma'
+import { GetMetadata } from './utils/Enigma';
 
 const { REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
-
-const clearCookie = (name) => {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-}
 
 export default function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-      const sessionExists = GetCookie('session');
+      const sessionExists = Cookies.get('session', { raw: true });
       const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
       console.log('Inside Use Effect ', sessionExists, isLoggedIn);
       if (sessionExists) {
         setIsLoggedIn(true);
-        console.log('Setting login...');
-        sessionStorage.setItem('isLoggedIn', true); // Store the logged-in state in sessionStorage
-        const { decryptedRes } = GetMetadata(sessionExists, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET)
-        sessionStorage.setItem('metadata', JSON.stringify(decryptedRes))
+        (async () => {
+          console.log('Setting login...');
+          const { decryptedRes } = await GetMetadata(sessionExists, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET);
+          console.log('METADATA', decryptedRes);
+          sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
+          console.log('GETTTT', sessionStorage.getItem('metadata'));
+        })();
       } else {
         setIsLoggedIn(false);
         sessionStorage.setItem('isLoggedIn', false); // Store the logged-in state in sessionStorage
