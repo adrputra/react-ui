@@ -2,7 +2,17 @@ import { useState, useContext } from 'react';
 // import { useCookies } from 'react-cookie';
 import axios from 'axios';
 // @mui
-import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Snackbar, Alert } from '@mui/material';
+import {
+  Link,
+  Stack,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Checkbox,
+  Snackbar,
+  Alert,
+  FormControlLabel,
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import Cookies from "js-cookie"
@@ -32,16 +42,17 @@ export default function LoginForm() {
     const req = {
       request: encryptedRequest
     }
+    console.log(req);
     try {
       const response = await axios.post(REACT_APP_LOGIN_API, JSON.stringify(req), {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const { decryptedRes, decodedRes } = GetMetadata(response.data.message.token, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET)
-
-      console.info('RES Login', decryptedRes);
-
+      
+      console.info('RES Login', response);
+      
       if (response.data.code === 200) {
+        const { decryptedRes, decodedRes } = GetMetadata(response.data.message.token, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET)
 
         const timeUntilExpiration = (new Date((decodedRes.exp + 7 * 60 * 60) * 1000))
 
@@ -100,9 +111,7 @@ export default function LoginForm() {
         />
       </Stack>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <Checkbox name="remember" label="Remember me">
-          Remember Me{' '}
-        </Checkbox>
+        <FormControlLabel control={<Checkbox />} sx={{ ml: 1 }} label="Remember Me" />
         <Link variant="subtitle2" underline="hover">
           Forgot password?
         </Link>
