@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import {
   Modal,
   Typography,
@@ -13,7 +13,6 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import axios from 'axios';
 import { MetadataContext } from '../../hooks/MetadataContext';
 import { SendRequest } from '../../utils/Enigma'
 
@@ -40,20 +39,40 @@ const modalButtonStyle = {
   marginLeft: '8px',
 };
 
-export default function InputModal({ open, onClose, InquiryInvitationList }) {
+export default function InputModal({ open, onClose, InquiryInvitationList, initialData }) {
   const [invitationData, setInvitationData] = useState({ level: 'Reguler', pax: 1 });
   const [errorMessage, setErrorMessage] = useState({});
   const { metadata } = useContext(MetadataContext);
+  console.log('initialData', initialData);
+  // const { rowData, rowCode } = initialData;
+
+  // const selectedRow = rowData.find((item) => item.code === rowCode);
+
+  useEffect(() => {
+    if (initialData) {
+      // If initialData is provided, update the invitationData state with it
+      setInvitationData(initialData);
+    }
+  }, [initialData]);
 
   const handleInvitationData = (e) => {
-    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId }));
+    const act = initialData ? 'c' : 'a';
+    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId, act }));
   };
+
+  const handlePhoneNumber = (event) => {
+    const inputValue = event.target.value;
+    // Remove any non-numeric characters using a regular expression
+    const numericValue = inputValue.replace(/[^0-9]/g, '');
+    // Update the input value with the sanitized numeric value
+
+    handleInvitationData({ target: { name: 'phone_number', value: numericValue } });
+  }
 
   const addInvitation = async () => {
     console.info('REQ Add Invitation', invitationData);
-    const postman = SendRequest(REACT_APP_ADD_INVITATION)
     try {
-      const response = await postman.post('', JSON.stringify(invitationData));
+      const response = await SendRequest(REACT_APP_ADD_INVITATION, invitationData);
 
       console.info('RES Add Invitation', response.data);
 
@@ -102,18 +121,24 @@ export default function InputModal({ open, onClose, InquiryInvitationList }) {
               divider={<Divider orientation="vertical" flexItem />}
             >
               <Typography variant="h5" style={modalTitleStyle}>
-                Create Invitation
+                {initialData ? "Change Invitation" : "Create Invitation" }
               </Typography>
               <Stack direction="column" spacing={3}>
                 {/* <Typography variant="body1">Guest Name</Typography> */}
-                <TextField fullWidth name="name" label="Guest Name" onChange={handleInvitationData} />
+                <TextField
+                  fullWidth
+                  name="name"
+                  label="Guest Name"
+                  value={invitationData.name || ''}
+                  onChange={handleInvitationData}
+                />
                 <div>
                   <InputLabel id="level-label">Level</InputLabel>
                   <Select
                     labelId="level-label"
                     id="level"
                     name="level"
-                    value={invitationData.level}
+                    value={invitationData.level || 'Reguler'}
                     label="Level"
                     onChange={handleInvitationData}
                   >
@@ -125,13 +150,13 @@ export default function InputModal({ open, onClose, InquiryInvitationList }) {
               </Stack>
 
               <Stack direction="column" spacing={3}>
-                {/* <Typography variant="body1">Phone Number</Typography> */}
                 <TextField
                   fullWidth
                   name="phoneNumber"
                   label="Phone Number"
+                  value={invitationData.phone_number || ''}
                   inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                  onChange={handleInvitationData}
+                  onChange={handlePhoneNumber}
                 />
 
                 {/* <Typography variant="body1">Number Of PAX</Typography> */}
@@ -141,7 +166,7 @@ export default function InputModal({ open, onClose, InquiryInvitationList }) {
                     labelId="pax-label"
                     id="pax"
                     name="pax"
-                    value={invitationData.pax}
+                    value={invitationData.pax || 1}
                     label="pax"
                     onChange={handleInvitationData}
                   >
