@@ -8,7 +8,6 @@ import {
   Stack,
   Alert,
   Snackbar,
-  Avatar,
   Button,
   Popover,
   Checkbox,
@@ -22,8 +21,8 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
-import axios from 'axios';
 import Iconify from '../components/iconify';
+import Label from '../components/label';
 import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 import InputModal from '../components/AddInvitationModal';
@@ -37,7 +36,8 @@ const TABLE_HEAD = [
   { id: 'id', label: 'ID', alignRight: false },
   { id: 'level', label: 'Level', alignRight: false },
   { id: 'phone_number', label: 'Phone Number', alignRight: false },
-  { id: '' },
+  { id: 'status', label: 'Status', alignRight: false },
+  { id: '', label: 'Actions', alignRight: true },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -92,10 +92,13 @@ export default function InvitationPage() {
 
   const [openModal, setOpenModal] = useState(false);
 
+  const [rowData, setRowData] = useState(null)
+
   const { metadata } = useContext(MetadataContext);
 
-  const handleOpenMenu = (event) => {
+  const handleOpenMenu = (event, code) => {
     setOpen(event.currentTarget);
+    setRowData(code);
   };
 
   const handleCloseMenu = () => {
@@ -148,12 +151,14 @@ export default function InvitationPage() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - invitationData.length) : 0;
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (row) => {
     setOpenModal(true);
+    setRowData(row)
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setRowData(null)
   };
 
   const req = {
@@ -162,16 +167,12 @@ export default function InvitationPage() {
 
   const InquiryInvitationList = async () => {
     console.log('REQ Invitation List', req);
-    const postman = SendRequest(REACT_APP_GET_INVITATION_LIST)
     try {
-      const response = await postman.post('', JSON.stringify(req));
+      const response = await SendRequest(REACT_APP_GET_INVITATION_LIST, req);
 
       console.log('RES Invitation List', response.data);
 
       if (response.data.code === 200) {
-        // const userCookie = getCookie('session')
-        // setCookie('user-session', userCookie);
-        // console.log(cookies);
         setInvitationData(response.data.message.Result);
       } else {
         setErrorMessage({ msg: response.data.message.Description, code: 'error' });
@@ -214,12 +215,11 @@ export default function InvitationPage() {
             </Snackbar>
           )}
           <Typography variant="h4" gutterBottom>
-            User
+            Invitation List
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModal}>
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={() => handleOpenModal(null)}>
             New User
           </Button>
-          <InputModal open={openModal} onClose={handleCloseModal} InquiryInvitationList={InquiryInvitationList}/>
         </Stack>
 
         <Card>
@@ -232,7 +232,7 @@ export default function InvitationPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={6}
+                  rowCount={invitationData ? invitationData.length : 0}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -240,23 +240,31 @@ export default function InvitationPage() {
                 <TableBody>
                   {filteredUsers &&
                     filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { name, code, level, phone_number } = row;
+                      const { name, code, level, phone_number, status } = row;
                       const selectedUser = selected.indexOf(code) !== -1;
+                      let statusColor;
+
+                      switch (status) {
+                        case 'Invited':
+                          statusColor = 'warning';
+                          break;
+                        case 'Notified':
+                          statusColor = 'info';
+                          break;
+                        case 'Attended':
+                          statusColor = 'success';
+                          break;
+
+                        default:
+                          statusColor = 'yellow';
+                          break;
+                      }
 
                       return (
                         <TableRow hover key={code} tabIndex={-1} role="checkbox" selected={selectedUser}>
                           <TableCell padding="checkbox">
                             <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, code)} />
                           </TableCell>
-
-                          {/* <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell> */}
 
                           <TableCell align="left">{name}</TableCell>
 
@@ -266,11 +274,53 @@ export default function InvitationPage() {
 
                           <TableCell align="left">{phone_number}</TableCell>
 
+                          <TableCell align="left">
+                            <Label color={statusColor}>{status}</Label>
+                          </TableCell>
+
                           <TableCell align="right">
-                            <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
+                            <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, row)}>
                               <Iconify icon={'eva:more-vertical-fill'} />
                             </IconButton>
                           </TableCell>
+                          <Popover
+                            open={Boolean(open)}
+                            anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 200,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenModal(rowData);
+                                handleCloseMenu();
+                              }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                              Edit
+                            </MenuItem>
+
+                            <MenuItem sx={{ color: 'success.main' }}>
+                              <Iconify icon={'bi:send-fill'} sx={{ mr: 2 }} />
+                              Send Invitation
+                            </MenuItem>
+
+                            <MenuItem sx={{ color: 'error.main' }}>
+                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                              Delete
+                            </MenuItem>
+                          </Popover>
                         </TableRow>
                       );
                     })}
@@ -294,35 +344,15 @@ export default function InvitationPage() {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
+        { openModal && (
+          <InputModal
+          open={openModal}
+          onClose={handleCloseModal}
+          InquiryInvitationList={InquiryInvitationList}
+          initialData = {rowData}
+          />
+        )}
       </Container>
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
 }
