@@ -3,6 +3,9 @@ import * as CryptoJS from 'crypto-js';
 // eslint-disable-next-line camelcase
 import jwt_decode from "jwt-decode";
 import axios from 'axios';
+import Cookies from 'js-cookie';
+
+const { REACT_APP_ENCRYPTION_SECRET } = process.env;
 
 // Initialize the ECB mode and PKCS7 padding
 CryptoJS.mode.ECB = (function () {
@@ -40,23 +43,33 @@ export const GetMetadata = (data, jwtSecret, encSecret) => {
   return { decodedRes, decryptedRes }
 };
 
-export const GetCookie = (name) => {
-  const cookieValue = document.cookie.split(';')
-    .map(cookie => cookie.trim())
-    .find(cookie => cookie.startsWith(`${name}=`));
 
-  if (cookieValue) {
-    return cookieValue.substring(name.length + 1);
-  } 
-    return null;
-};
-
-
-export const SendRequest = (baseURL) => {
-  const token = GetCookie('session')
+export const SendRequest = async (baseURL, request) => {
+  const token = Cookies.get('session');
   const headers = {
     'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+
+  const instance = axios.create({
+    baseURL, // Replace with your API base URL
+    headers,
+  });
+
+  const encryptedRequest = EncryptData(request, REACT_APP_ENCRYPTION_SECRET);
+
+  const req = { request: encryptedRequest };
+  console.log(req);
+
+  const res = await instance.post(baseURL, JSON.stringify(req));
+  const response = DecryptData(res.data.message.Result, REACT_APP_ENCRYPTION_SECRET);
+  res.data.message.Result = response
+  return res;
+};
+
+export const SendRequestExt = (baseURL) => {
+  const headers = {
+    'Content-Type': 'application/json'
   };
 
   const instance = axios.create({
@@ -66,5 +79,4 @@ export const SendRequest = (baseURL) => {
 
   return instance;
 };
-
 
