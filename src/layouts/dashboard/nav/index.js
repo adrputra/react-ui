@@ -14,7 +14,7 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 import { MetadataContext } from '../../../hooks/MetadataContext';
 //
-import navConfig from './config';
+import GetNavConfig from './config';
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +40,7 @@ export default function Nav({ openNav, onCloseNav }) {
   const { metadata } = useContext(MetadataContext);
 
   const isDesktop = useResponsive('up', 'lg');
+  const listNav = GetNavConfig();
 
   useEffect(() => {
     if (openNav) {
@@ -77,7 +78,7 @@ export default function Nav({ openNav, onCloseNav }) {
         </Link>
       </Box>
 
-      <NavSection data={navConfig} />
+      <NavSection data={listNav} />
 
       <Box sx={{ flexGrow: 1 }} />
 
