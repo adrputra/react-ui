@@ -35,7 +35,8 @@ export default function LoginForm() {
     setUserLogin((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (event) => {
+    event.preventDefault()
     sessionStorage.removeItem('metadata');
 
     const encryptedRequest =  EncryptData(userLogin, REACT_APP_ENCRYPTION_SECRET)
@@ -91,35 +92,37 @@ export default function LoginForm() {
           </Alert>
         </Snackbar>
       )}
-      <Stack spacing={3}>
-        <TextField name="userId" label="Email address" onChange={handleChange} />
+      <form onSubmit={handleLogin}>
+        <Stack spacing={3}>
+          <TextField name="userId" label="Email address" onChange={handleChange} />
 
-        <TextField
-          name="password"
-          label="Password"
-          onChange={handleChange}
-          type={showPassword ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Stack>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <FormControlLabel control={<Checkbox />} sx={{ ml: 1 }} label="Remember Me" />
-        <Link variant="subtitle2" underline="hover">
-          Forgot password?
-        </Link>
-      </Stack>
+          <TextField
+            name="password"
+            label="Password"
+            onChange={handleChange}
+            type={showPassword ? 'text' : 'password'}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
+          <FormControlLabel control={<Checkbox />} sx={{ ml: 1 }} label="Remember Me" />
+          <Link variant="subtitle2" underline="hover">
+            Forgot password?
+          </Link>
+        </Stack>
 
-      <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleLogin}>
-        Login
-      </LoadingButton>
+        <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleLogin}>
+          Login
+        </LoadingButton>
+      </form>
     </>
   );
 }
