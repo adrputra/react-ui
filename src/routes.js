@@ -23,17 +23,22 @@ export default function Router() {
 
   useEffect(() => {
       const sessionExists = Cookies.get('session', { raw: true });
-      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
+      // const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
       console.log('Inside Use Effect ', sessionExists, isLoggedIn);
       if (sessionExists) {
         setIsLoggedIn(true);
-        (async () => {
-          console.log('Setting login...');
-          const { decryptedRes } = await GetMetadata(sessionExists, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET);
-          console.log('METADATA', decryptedRes);
-          sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
-          console.log('GETTTT', sessionStorage.getItem('metadata'));
-        })();
+         (async () => {
+           try {
+             const { decryptedRes } = await GetMetadata(
+               sessionExists,
+               REACT_APP_JWT_SECRET,
+               REACT_APP_ENCRYPTION_SECRET
+             );
+             sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
+           } catch (error) {
+             console.error('Error getting and storing metadata:', error);
+           }
+         })();
       } else {
         setIsLoggedIn(false);
         sessionStorage.setItem('isLoggedIn', false); // Store the logged-in state in sessionStorage
