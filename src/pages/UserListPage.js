@@ -24,20 +24,19 @@ import {
 import Iconify from '../components/iconify';
 import Label from '../components/label';
 import Scrollbar from '../components/scrollbar';
+import InputUserModal from '../components/InputUserModal';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-import InputInvitationModal from '../components/InputInvitationModal';
 import { MetadataContext } from '../hooks/MetadataContext';
 import { SendRequest } from '../utils/Enigma'
 
-const { REACT_APP_GET_INVITATION_LIST } = process.env;
+const { REACT_APP_GET_USER_LIST } = process.env;
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'id', label: 'ID', alignRight: false },
-  { id: 'level', label: 'Level', alignRight: false },
-  { id: 'phone_number', label: 'Phone Number', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'id', label: 'User ID', alignRight: false },
+  { id: 'level', label: 'Level ID', alignRight: false },
   { id: '', label: 'Actions', alignRight: true },
+  { id: '', label: '', alignRight: true },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -69,7 +68,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function InvitationPage() {
+export default function UserListPage() {
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -86,19 +85,18 @@ export default function InvitationPage() {
 
   const [errorMessage, setErrorMessage] = useState({});
 
-  const [invitationData, setInvitationData] = useState();
+  const [UserList, setUserList] = useState();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
   const [openModal, setOpenModal] = useState(false);
 
-  const [rowData, setRowData] = useState(null)
+  const [rowData, setRowData] = useState(null);
 
   const { metadata } = useContext(MetadataContext);
 
-  const handleOpenMenu = (event, code) => {
+  const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
-    setRowData(code);
   };
 
   const handleCloseMenu = () => {
@@ -113,7 +111,7 @@ export default function InvitationPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = invitationData.map((n) => n.code);
+      const newSelecteds = UserList.map((n) => n.code);
       setSelected(newSelecteds);
       return;
     }
@@ -149,38 +147,39 @@ export default function InvitationPage() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - invitationData.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - UserList.length) : 0;
 
   const handleOpenModal = (row) => {
     setOpenModal(true);
-    setRowData(row)
+    setRowData(row);
+    console.log(row);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setRowData(null)
+    setRowData(null);
   };
 
   const handleErrorMessage = (error) => {
-    setErrorMessage(error)
+    setErrorMessage(error);
     setTimeout(() => {
       setErrorMessage({});
     }, 5000);
-  }
+  };
 
   const req = {
     userId: metadata.userId,
   };
 
-  const InquiryInvitationList = async () => {
-    console.log('REQ Invitation List', req);
+  const InquiryUserList = async () => {
+    console.log('REQ User List', req);
     try {
-      const response = await SendRequest(REACT_APP_GET_INVITATION_LIST, req);
+      const response = await SendRequest(REACT_APP_GET_USER_LIST, req);
 
-      console.log('RES Invitation List', response.data);
+      console.log('RES User List', response.data);
 
       if (response.data.code === 200) {
-        setInvitationData(response.data.message.Result);
+        setUserList(response.data.message.Result);
       } else {
         setErrorMessage({ msg: response.data.message.Description, code: 'error' });
         console.log(errorMessage);
@@ -189,7 +188,7 @@ export default function InvitationPage() {
       setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
       console.log(error);
     } finally {
-      console.log('Invitation Data Length', invitationData ? invitationData.length : 0);
+      console.log('User List Data Length', UserList ? UserList.length : 0);
       setTimeout(() => {
         setErrorMessage({});
       }, 5000);
@@ -197,15 +196,15 @@ export default function InvitationPage() {
   };
 
   useEffect(() => {
-    InquiryInvitationList();
+    InquiryUserList();
   }, []);
 
   useEffect(() => {
-    if (invitationData) {
-      const sortedFilteredUsers = applySortFilter(invitationData, getComparator(order, orderBy), filterName);
+    if (UserList) {
+      const sortedFilteredUsers = applySortFilter(UserList, getComparator(order, orderBy), filterName);
       setFilteredUsers(sortedFilteredUsers); // Store the filtered users in state
     }
-  }, [invitationData, order, orderBy, filterName]);
+  }, [UserList, order, orderBy, filterName]);
 
   return (
     <>
@@ -222,10 +221,14 @@ export default function InvitationPage() {
             </Snackbar>
           )}
           <Typography variant="h4" gutterBottom>
-            Invitation List
+            User List
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={() => handleOpenModal(null)}>
-            New Invitation
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={() => handleOpenModal(null)}
+          >
+            New User
           </Button>
         </Stack>
 
@@ -239,7 +242,7 @@ export default function InvitationPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={invitationData ? invitationData.length : 0}
+                  rowCount={UserList ? UserList.length : 0}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -247,49 +250,29 @@ export default function InvitationPage() {
                 <TableBody>
                   {filteredUsers &&
                     filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { name, code, level, phone_number, status } = row;
-                      const selectedUser = selected.indexOf(code) !== -1;
-                      let statusColor;
-
-                      switch (status) {
-                        case 'Invited':
-                          statusColor = 'warning';
-                          break;
-                        case 'Notified':
-                          statusColor = 'info';
-                          break;
-                        case 'Attended':
-                          statusColor = 'success';
-                          break;
-
-                        default:
-                          statusColor = 'yellow';
-                          break;
-                      }
+                      const { full_name, user_id, level_id } = row;
+                      const selectedUser = selected.indexOf(user_id) !== -1;
 
                       return (
-                        <TableRow hover key={code} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                        <TableRow hover key={user_id} tabIndex={-1} role="checkbox" selected={selectedUser}>
                           <TableCell padding="checkbox">
-                            <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, code)} />
+                            <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, user_id)} />
                           </TableCell>
 
-                          <TableCell align="left">{name}</TableCell>
+                          <TableCell align="left">{full_name}</TableCell>
 
-                          <TableCell align="left">{code}</TableCell>
+                          <TableCell align="left">{user_id}</TableCell>
 
-                          <TableCell align="left">{level}</TableCell>
-
-                          <TableCell align="left">{phone_number}</TableCell>
-
-                          <TableCell align="left">
-                            <Label color={statusColor}>{status}</Label>
-                          </TableCell>
+                          <TableCell align="left">{level_id}</TableCell>
 
                           <TableCell align="right">
                             <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, row)}>
                               <Iconify icon={'eva:more-vertical-fill'} />
                             </IconButton>
                           </TableCell>
+
+                          <TableCell align="left" />
+
                           <Popover
                             open={Boolean(open)}
                             anchorEl={open}
@@ -344,20 +327,20 @@ export default function InvitationPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={invitationData ? invitationData.length : 0}
+            count={UserList ? UserList.length : 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
-        { openModal && (
-          <InputInvitationModal
-          open={openModal}
-          isError={handleErrorMessage}
-          onClose={handleCloseModal}
-          InquiryInvitationList={InquiryInvitationList}
-          initialData = {rowData}
+        {openModal && (
+          <InputUserModal
+            open={openModal}
+            isError={handleErrorMessage}
+            onClose={handleCloseModal}
+            InquiryUserList={InquiryUserList}
+            initialData={rowData}
           />
         )}
       </Container>

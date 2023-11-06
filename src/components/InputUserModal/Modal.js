@@ -13,6 +13,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import Iconify from '../iconify';
 import { MetadataContext } from '../../hooks/MetadataContext';
 import { SendRequest } from '../../utils/Enigma'
 
@@ -39,25 +40,21 @@ const modalButtonStyle = {
   marginLeft: '8px',
 };
 
-export default function InputModal({ open, onClose, InquiryInvitationList, initialData }) {
-  const [invitationData, setInvitationData] = useState({ level: 'Reguler', pax: 1 });
-  const [errorMessage, setErrorMessage] = useState({});
+export default function InputUserModal({ open, isError, onClose, InquiryUserList, initialData }) {
+  const [userData, setUserData] = useState({});
   const { metadata } = useContext(MetadataContext);
-  console.log('initialData', initialData);
-  // const { rowData, rowCode } = initialData;
 
-  // const selectedRow = rowData.find((item) => item.code === rowCode);
+  console.log('User Initial Data', initialData);
 
   useEffect(() => {
     if (initialData) {
-      // If initialData is provided, update the invitationData state with it
-      setInvitationData(initialData);
+      setUserData(initialData);
     }
   }, [initialData]);
 
   const handleInvitationData = (e) => {
     const act = initialData ? 'c' : 'a';
-    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId, act }));
+    setUserData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId, act }));
   };
 
   const handlePhoneNumber = (event) => {
@@ -69,33 +66,27 @@ export default function InputModal({ open, onClose, InquiryInvitationList, initi
     handleInvitationData({ target: { name: 'phone_number', value: numericValue } });
   }
 
-  const addInvitation = async () => {
-    console.info('REQ Add Invitation', invitationData);
+  const addUser = async () => {
+    console.info('REQ Add User', userData);
     try {
-      const response = await SendRequest(REACT_APP_ADD_INVITATION, invitationData);
+      const response = await SendRequest(REACT_APP_ADD_INVITATION, userData);
 
-      console.info('RES Add Invitation', response.data);
+      console.info('RES Add User', response.data);
 
       if (response.data.code === 200) {
-        setErrorMessage({ msg: response.data.message.Description, code: 'success' });
+        isError({ msg: response.data.message.Description, code: 'success' });
       } else {
-        setErrorMessage({ msg: response.data.message.Description, code: 'error' });
-        console.error(errorMessage);
+        isError({ msg: response.data.message.Description, code: 'error' });
+        console.error(response.data.message.Description);
       }
     } catch (error) {
-      setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
+      isError({ msg: `${error.code} - ${error.message}`, code: 'error' });
       console.error(error);
     } finally {
-      setInvitationData({ level: 'Reguler', pax: 1 });
-      console.log(invitationData);
-      console.log(errorMessage);
-      setTimeout(() => {
-        setErrorMessage({});
-      }, 5000);
+      setUserData({});
 
       onClose();
-      InquiryInvitationList();
-      // window.location.reload();
+      InquiryUserList();
     }
 
     console.log('Metadata', metadata);
@@ -103,42 +94,50 @@ export default function InputModal({ open, onClose, InquiryInvitationList, initi
 
   return (
     <>
-      {Object.keys(errorMessage).length > 0 && (
-        <Snackbar open autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-          <Alert variant="filled" severity={errorMessage.code} sx={{ width: '100%' }}>
-            {errorMessage.msg}
-          </Alert>
-        </Snackbar>
-      )}
       <Modal open={open} onClose={onClose} style={modalContainerStyle}>
-        <Container maxWidth="xl">
+        <Container maxWidth="sm">
           <div style={modalContentStyle}>
             <Stack
-              direction="row"
+              direction="column"
               justifyContent="space-evenly"
-              alignItems="center"
-              spacing={5}
-              divider={<Divider orientation="vertical" flexItem />}
+              spacing={3}
+              divider={<Divider orientation="horizontal" flexItem />}
+              sx={{ ml: 3 }}
             >
-              <Typography variant="h5" style={modalTitleStyle}>
-                {initialData ? "Change Invitation" : "Create Invitation" }
+              <Typography variant="h3" style={modalTitleStyle}>
+                {initialData ? 'Change User Data' : 'Create New User'}
               </Typography>
               <Stack direction="column" spacing={3}>
-                {/* <Typography variant="body1">Guest Name</Typography> */}
-                <TextField
-                  fullWidth
-                  name="name"
-                  label="Guest Name"
-                  value={invitationData.name || ''}
-                  onChange={handleInvitationData}
-                />
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
+                  <TextField
+                    name="name"
+                    label="Guest Name"
+                    value={userData.name || ''}
+                    onChange={handleInvitationData}
+                  />
+                </Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Iconify icon={'basil:phone-solid'} width={50} sx={{ color: 'primary.main' }} />
+                  <TextField
+                    name="phone_number"
+                    label="Phone Number"
+                    value={userData.phone_number || ''}
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    onChange={handlePhoneNumber}
+                  />
+                </Stack>
+              </Stack>
+
+              <Stack direction="row" spacing={3} justifyContent="flex-start">
                 <div>
                   <InputLabel id="level-label">Level</InputLabel>
                   <Select
                     labelId="level-label"
+                    style={{ width: '200px' }}
                     id="level"
                     name="level"
-                    value={invitationData.level || 'Reguler'}
+                    value={userData.level || 'Reguler'}
                     label="Level"
                     onChange={handleInvitationData}
                   >
@@ -147,26 +146,15 @@ export default function InputModal({ open, onClose, InquiryInvitationList, initi
                     <MenuItem value={'VVIP'}>VVIP</MenuItem>
                   </Select>
                 </div>
-              </Stack>
 
-              <Stack direction="column" spacing={3}>
-                <TextField
-                  fullWidth
-                  name="phoneNumber"
-                  label="Phone Number"
-                  value={invitationData.phone_number || ''}
-                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                  onChange={handlePhoneNumber}
-                />
-
-                {/* <Typography variant="body1">Number Of PAX</Typography> */}
                 <div>
                   <InputLabel id="pax-label">Number Of PAX</InputLabel>
                   <Select
                     labelId="pax-label"
+                    style={{ width: '100px' }}
                     id="pax"
                     name="pax"
-                    value={invitationData.pax || 1}
+                    value={userData.pax || 1}
                     label="pax"
                     onChange={handleInvitationData}
                   >
@@ -177,12 +165,12 @@ export default function InputModal({ open, onClose, InquiryInvitationList, initi
                   </Select>
                 </div>
               </Stack>
-              <Stack direction="column" spacing={3}>
-                <Button variant="contained" color="primary" style={modalButtonStyle} onClick={addInvitation}>
-                  Submit
-                </Button>
+              <Stack direction="row" spacing={3}>
                 <Button variant="contained" color="error" style={modalButtonStyle} onClick={onClose}>
                   Close
+                </Button>
+                <Button variant="contained" color="primary" style={modalButtonStyle} onClick={addUser}>
+                  Submit
                 </Button>
               </Stack>
             </Stack>

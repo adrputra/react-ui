@@ -59,7 +59,7 @@ export const SendRequest = async (baseURL, request) => {
   const encryptedRequest = EncryptData(request, REACT_APP_ENCRYPTION_SECRET);
 
   const req = { request: encryptedRequest };
-  console.log(req);
+  console.log('SendRequest', req);
 
   const res = await instance.post(baseURL, JSON.stringify(req));
   const response = DecryptData(res.data.message.Result, REACT_APP_ENCRYPTION_SECRET);
