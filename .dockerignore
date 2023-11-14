@@ -1,0 +1,28 @@
+# Ignore node_modules directory
+node_modules
+
+# Ignore build output directory
+build
+
+# Ignore development-specific files
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore npm debug log
+npm-debug.log*
+
+# Ignore yarn error log
+yarn-error.log
+
+# Ignore testing files and directories
+/coverage
+
+# Ignore editor-specific files
+.vscode/
+.idea/
+*.sublime-*
+*.swp

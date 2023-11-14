@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
@@ -12,8 +12,9 @@ import useResponsive from '../../../hooks/useResponsive';
 import Logo from '../../../components/logo';
 import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
+import { MetadataContext } from '../../../hooks/MetadataContext';
 //
-import navConfig from './config';
+import GetNavConfig from './config';
 
 // ----------------------------------------------------------------------
 
@@ -36,8 +37,10 @@ Nav.propTypes = {
 
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
+  const { metadata } = useContext(MetadataContext);
 
   const isDesktop = useResponsive('up', 'lg');
+  const listNav = GetNavConfig();
 
   useEffect(() => {
     if (openNav) {
@@ -64,7 +67,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {metadata.shortName}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -75,7 +78,7 @@ export default function Nav({ openNav, onCloseNav }) {
         </Link>
       </Box>
 
-      <NavSection data={navConfig} />
+      <NavSection data={listNav} />
 
       <Box sx={{ flexGrow: 1 }} />
 
