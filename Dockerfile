@@ -9,15 +9,15 @@ COPY package*.json ./
 
 # Install the dependencies
 RUN yarn install
-
+RUN yarn add serve@14.2.1
 # Copy the entire project to the working directory
 COPY . .
 
-# Build the React app
-# RUN npm run build
-
 # Expose the desired port
-EXPOSE 8889
+# ARG PORT
+EXPOSE 3001
 
 # Define the command to run the application
-CMD ["npm", "run", "Build"]
+RUN npm run build
+
+CMD [ "npx", "serve", "build", "-l", "3001" ]
