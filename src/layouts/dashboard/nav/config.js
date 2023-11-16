@@ -53,7 +53,7 @@ function GetNavConfig() {
     },
     {
       title: 'Not found',
-      path: '/ui/404',
+      path: '/404',
       icon: icon('ic_disabled'),
       level: [0],
     },

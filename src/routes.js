@@ -85,7 +85,7 @@ export default function Router() {
       children: [
         { element: <Navigate to="/ui/dashboard/app" />, index: true },
         { path: '404', element: <Page404 /> },
-        { path: '*', element: <Navigate to="/ui/404" /> },
+        { path: '*', element: <Navigate to="404" /> },
       ],
     },
     {
