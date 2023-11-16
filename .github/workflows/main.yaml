@@ -20,7 +20,7 @@ jobs:
         command_timeout: 30m
         script: |
           cd ${{ secrets.NAME }}
-          git pull origin master
+          git pull
 
     - name: Remove Old Image And Build New One
       uses: appleboy/ssh-action@v0.1.10
