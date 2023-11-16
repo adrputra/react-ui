@@ -33,7 +33,8 @@ jobs:
         port: ${{ secrets.PORT }}
         command_timeout: 30m
         script: |
-          docker rm -f ${{ secrets.NAME }}
+          docker stop ${{ secrets.NAME }}
+          docker rm ${{ secrets.NAME }}
           docker rmi ${{ secrets.NAME }}
           cd ${{ secrets.NAME }}
           docker build -t ${{ secrets.NAME }} .
