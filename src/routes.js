@@ -73,7 +73,7 @@ export default function Router() {
       ],
     },
     {
-      path: '/ui',
+      path: '/',
       element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/ui/login" />,
     },
     {
