@@ -73,7 +73,7 @@ export default function Router() {
       ],
     },
     {
-      path: '/',
+      path: '/ui',
       element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/ui/login" />,
     },
     {
@@ -85,11 +85,11 @@ export default function Router() {
       children: [
         { element: <Navigate to="/ui/dashboard/app" />, index: true },
         { path: '404', element: <Page404 /> },
-        { path: '*', element: <Navigate to="404" /> },
+        { path: '/ui/*', element: <Navigate to="404" /> },
       ],
     },
     {
-      path: '*',
+      path: '/ui/*',
       element: <Navigate to="/ui/404" replace />,
     },
   ]);
