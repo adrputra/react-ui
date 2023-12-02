@@ -19,11 +19,10 @@ EXPOSE 3001
 
 # Define the command to run the application
 RUN npm run build
+
+RUN mkdir -p ./build/ui
 RUN mv ./build/static ./build/ui
 RUN mv ./build/assets ./build/ui
 RUN mv ./build/favicon ./build/ui
-
-RUN mkdir -p ./build/app
-
 
 CMD [ "npx", "serve", "-s", "build", "-l", "3001"]
