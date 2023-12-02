@@ -26,4 +26,4 @@ RUN mv ./build/favicon ./build/ui
 RUN mkdir -p ./build/app
 
 
-CMD [ "npx", "serve", "-s", "build", "-l", "3001", "-p", "/ui" ]
+CMD [ "npx", "serve", "-s", "build", "-l", "3001"]
