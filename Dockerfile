@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Install the dependencies
 RUN yarn install
-RUN yarn add serve@14.2.1
+
 # Copy the entire project to the working directory
 COPY . .
 
@@ -19,5 +19,11 @@ EXPOSE 3001
 
 # Define the command to run the application
 RUN npm run build
+RUN mv ./build/static ./build/ui
+RUN mv ./build/assets ./build/ui
+RUN mv ./build/favicon ./build/ui
+
+RUN mkdir -p ./build/app
+
 
 CMD [ "npx", "serve", "build", "-l", "3001" ]
