@@ -50,20 +50,20 @@ export default function Router() {
   let currentLocation;
   console.log(location.pathname)
   if (isLoggedIn){
-    if (location.pathname !== '/ui/login') {
+    if (location.pathname !== '/login') {
       localStorage.setItem('currentLocation', location.pathname);
     }
-    currentLocation = localStorage.getItem('currentLocation') || '/ui/dashboard/app';
+    currentLocation = localStorage.getItem('currentLocation') || '/dashboard/app';
   }
   
 
   console.log('State before route : ', isLoggedIn);
   const routes = useRoutes([
     {
-      path: '/ui/dashboard',
-      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/ui/login" />,
+      path: '/dashboard',
+      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
-        { element: <Navigate to="/ui/dashboard/app" />, index: true },
+        { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'users', element: <UserListPage /> },
@@ -73,24 +73,24 @@ export default function Router() {
       ],
     },
     {
-      path: '/ui',
-      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/ui/login" />,
+      path: '',
+      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
     },
     {
-      path: '/ui/login',
+      path: '/login',
       element: isLoggedIn ? <Navigate to={currentLocation} /> : <LoginPage />,
     },
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/ui/dashboard/app" />, index: true },
+        { element: <Navigate to="/dashboard/app" />, index: true },
         { path: '404', element: <Page404 /> },
-        { path: '/ui/*', element: <Navigate to="404" /> },
+        { path: '/*', element: <Navigate to="404" /> },
       ],
     },
     {
-      path: '/ui/*',
-      element: <Navigate to="/ui/404" replace />,
+      path: '/*',
+      element: <Navigate to="/404" replace />,
     },
   ]);
 
