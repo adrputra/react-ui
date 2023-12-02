@@ -20,4 +20,4 @@ EXPOSE 3001
 # Define the command to run the application
 RUN npm run build
 
-CMD [ "npx", "serve", "build", "-l", "3001" ]
+CMD [ "npx", "serve", "-s", "build", "-l", "3001", "-p", "/ui" ]
