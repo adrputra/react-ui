@@ -61,7 +61,7 @@ export const GetMetadata = (data, jwtSecret, encSecret) => {
 export const SendRequest = async (baseURL, request) => {
   const token = Cookies.get('session');
   const headers = {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
