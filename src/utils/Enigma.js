@@ -61,13 +61,16 @@ export const GetMetadata = (data, jwtSecret, encSecret) => {
 export const SendRequest = async (baseURL, request) => {
   const token = Cookies.get('session');
   const headers = {
-    'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
   const instance = axios.create({
     baseURL, // Replace with your API base URL
     headers,
+    withCredentials: true,
   });
 
   const encryptedRequest = EncryptData(request, REACT_APP_ENCRYPTION_SECRET);

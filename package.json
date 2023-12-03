@@ -5,9 +5,10 @@
   "version": "1.7.0",
   "private": false,
   "homepage": "/ui",
+  "proxy":"https://eventarry.com",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "NODE_ENV=production react-scripts build",
     "test": "react-scripts test",
     "dev": "NODE_ENV=development npm start",
     "eject": "react-scripts eject",
