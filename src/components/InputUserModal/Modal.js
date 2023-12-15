@@ -6,18 +6,19 @@ import {
   TextField,
   Stack,
   Container,
-  Select,
-  MenuItem,
-  InputLabel,
+  InputAdornment,
+  IconButton,
   Divider,
-  Snackbar,
-  Alert,
+  FormHelperText,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import Iconify from '../iconify';
 import { MetadataContext } from '../../hooks/MetadataContext';
 import { SendRequest } from '../../utils/Enigma'
 
-const { REACT_APP_ADD_INVITATION } = process.env;
+const { REACT_APP_ADD_USER } = process.env;
 
 const modalContainerStyle = {
   display: 'flex',
@@ -40,36 +41,51 @@ const modalButtonStyle = {
   marginLeft: '8px',
 };
 
-export default function InputUserModal({ open, isError, onClose, InquiryUserList, initialData }) {
-  const [userData, setUserData] = useState({});
+export default function InputUserModal({ open, isError, onClose, InquiryUserList, initialData, isDelete }) {
+  const [userData, setUserData] = useState({level_id : "1"});
+  const [isMatchPassword, setIsMatchPassword] = useState(true);
+  const [confirmPassword, setConfirmPassword] = useState();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { metadata } = useContext(MetadataContext);
 
-  console.log('User Initial Data', initialData);
+  console.log('Initial Data', initialData);
+  console.log('User Data', userData);
 
-  useEffect(() => {
-    if (initialData) {
-      setUserData(initialData);
-    }
-  }, [initialData]);
-
-  const handleInvitationData = (e) => {
-    const act = initialData ? 'c' : 'a';
-    setUserData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId, act }));
-  };
-
-  const handlePhoneNumber = (event) => {
-    const inputValue = event.target.value;
-    // Remove any non-numeric characters using a regular expression
-    const numericValue = inputValue.replace(/[^0-9]/g, '');
-    // Update the input value with the sanitized numeric value
-
-    handleInvitationData({ target: { name: 'phone_number', value: numericValue } });
+  const deleteConfirmationDialog = () => {
+    <Modal open={open} onClose={onClose} style={modalContainerStyle} />
   }
 
+  // eslint-disable-next-line consistent-return
+  useEffect(() => {
+    if (initialData) {
+      if (isDelete) {
+          setUserData({ ...initialData, act: 'd' });
+        return deleteConfirmationDialog();
+      }
+      setUserData(initialData);
+    }
+  }, [initialData, isDelete]);
+
+  const handleUserData = (e) => {
+    const act = initialData ? 'c' : 'a';
+    setUserData((prev) => ({ ...prev, [e.target.name]: e.target.value, act }));
+    if (e.target.name === 'password') {
+      setIsMatchPassword(e.target.value === confirmPassword);
+    }
+
+  };
+
+  const handleConfirmPassword = (e) => {
+    setConfirmPassword(e.target.value);
+    console.log(userData.password, confirmPassword);
+    setIsMatchPassword(e.target.value === userData.password);
+  };
+
   const addUser = async () => {
-    console.info('REQ Add User', userData);
+    console.info(userData.act === 'c' ? 'REQ Change User' : 'REQ Add User', userData);
     try {
-      const response = await SendRequest(REACT_APP_ADD_INVITATION, userData);
+      const response = await SendRequest(REACT_APP_ADD_USER, userData);
 
       console.info('RES Add User', response.data);
 
@@ -94,7 +110,7 @@ export default function InputUserModal({ open, isError, onClose, InquiryUserList
 
   return (
     <>
-      <Modal open={open} onClose={onClose} style={modalContainerStyle}>
+      <Modal open={open && !isDelete} onClose={onClose} style={modalContainerStyle}>
         <Container maxWidth="sm">
           <div style={modalContentStyle}>
             <Stack
@@ -109,67 +125,107 @@ export default function InputUserModal({ open, isError, onClose, InquiryUserList
               </Typography>
               <Stack direction="column" spacing={3}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
+                  <Iconify icon={'bxs:id-card'} width={50} sx={{ color: 'primary.main' }} />
                   <TextField
-                    name="name"
-                    label="Guest Name"
-                    value={userData.name || ''}
-                    onChange={handleInvitationData}
+                    id='user_id'
+                    name="user_id"
+                    label="Username"
+                    value={userData.user_id || ''}
+                    onChange={handleUserData}
                   />
                 </Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Iconify icon={'basil:phone-solid'} width={50} sx={{ color: 'primary.main' }} />
+                  <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
                   <TextField
-                    name="phone_number"
-                    label="Phone Number"
-                    value={userData.phone_number || ''}
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                    onChange={handlePhoneNumber}
+                    id='full_name'
+                    name="full_name"
+                    label="Full Name"
+                    value={userData.full_name || ''}
+                    onChange={handleUserData}
                   />
                 </Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
+                  <TextField
+                    id='short_name'
+                    name="short_name"
+                    label="Short Name"
+                    value={userData.short_name || ''}
+                    onChange={handleUserData}
+                  />
+                </Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
+                  <Stack direction="column">
+                    <Select
+                      labelId="level-label"
+                      style={{ width: '200px' }}
+                      id="level_id"
+                      name="level_id"
+                      value={userData.level_id || '1'}
+                      label="Level"
+                      onChange={handleUserData}
+                    >
+                      <MenuItem value={'1'}>User</MenuItem>
+                      <MenuItem value={'0'}>Admin</MenuItem>
+                    </Select>
+                    <FormHelperText>&nbsp; Account Level</FormHelperText>
+                  </Stack>
+                </Stack>
+                
+                {!initialData && 
+                  <><Stack direction="row" spacing={2} alignItems="center">
+                    <Iconify icon={'mdi:password-check'} width={50} sx={{ color: 'primary.main' }} />
+                    <TextField
+                      id='password'
+                      name="password"
+                      label="Password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={userData.password || ''}
+                      onChange={handleUserData}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                              <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }} />
+                  </Stack><Stack direction="row" spacing={2} alignItems="center">
+                      <Iconify icon={'mdi:password-check'} width={50} sx={{ color: 'primary.main' }} />
+                      <Stack direction="column">
+                        <TextField
+                          id='confirmPassword'
+                          name="confirmPassword"
+                          label="Confirm Password"
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword || ''}
+                          onChange={handleConfirmPassword}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                                  <Iconify icon={showConfirmPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }} />
+                        {!isMatchPassword && (
+                          <FormHelperText style={{ color: 'red' }}>
+                            &nbsp; Password do not match
+                          </FormHelperText>
+                        )}
+                      </Stack>
+                    </Stack></>
+                }
               </Stack>
 
-              <Stack direction="row" spacing={3} justifyContent="flex-start">
-                <div>
-                  <InputLabel id="level-label">Level</InputLabel>
-                  <Select
-                    labelId="level-label"
-                    style={{ width: '200px' }}
-                    id="level"
-                    name="level"
-                    value={userData.level || 'Reguler'}
-                    label="Level"
-                    onChange={handleInvitationData}
-                  >
-                    <MenuItem value={'Reguler'}>Reguler</MenuItem>
-                    <MenuItem value={'VIP'}>VIP</MenuItem>
-                    <MenuItem value={'VVIP'}>VVIP</MenuItem>
-                  </Select>
-                </div>
-
-                <div>
-                  <InputLabel id="pax-label">Number Of PAX</InputLabel>
-                  <Select
-                    labelId="pax-label"
-                    style={{ width: '100px' }}
-                    id="pax"
-                    name="pax"
-                    value={userData.pax || 1}
-                    label="pax"
-                    onChange={handleInvitationData}
-                  >
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                    <MenuItem value={4}>4</MenuItem>
-                  </Select>
-                </div>
-              </Stack>
               <Stack direction="row" spacing={3}>
                 <Button variant="contained" color="error" style={modalButtonStyle} onClick={onClose}>
                   Close
                 </Button>
-                <Button variant="contained" color="primary" style={modalButtonStyle} onClick={addUser}>
+                <Button variant="contained" color="primary" style={modalButtonStyle} onClick={addUser} disabled={!isMatchPassword}>
                   Submit
                 </Button>
               </Stack>
@@ -177,6 +233,33 @@ export default function InputUserModal({ open, isError, onClose, InquiryUserList
           </div>
         </Container>
       </Modal>
+
+      <Modal open={isDelete} onClose={onClose} style={modalContainerStyle}>
+      <Container maxWidth="sm">
+        <div style={modalContentStyle}>
+          <Stack
+            direction="column"
+            justifyContent="space-evenly"
+            spacing={3}
+            divider={<Divider orientation="horizontal" flexItem />}
+            sx={{ ml: 3 }}
+          >
+            <Typography variant="h3" style={modalTitleStyle}>
+              Delete User
+            </Typography>
+            <Typography>Are you sure you want to delete this user?</Typography>
+            <Stack direction="row" spacing={3}>
+                <Button variant="contained" color="error" style={modalButtonStyle} onClick={onClose}>
+                  Close
+                </Button>
+                <Button variant="contained" color="primary" style={modalButtonStyle} onClick={addUser}>
+                  Submit
+                </Button>
+              </Stack>
+          </Stack>
+        </div>
+      </Container>
+    </Modal>
     </>
   );
 }
