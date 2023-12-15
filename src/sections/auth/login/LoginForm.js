@@ -60,10 +60,10 @@ export default function LoginForm() {
         Cookies.set('session', response.data.message.token, { expires: timeUntilExpiration })
 
         updateMetadata({
-          userId: decryptedRes.userId,
-          shortName: decryptedRes.shortName,
-          branchCode: decryptedRes.branchCode,
-          levelId: decryptedRes.levelId,
+          user_id: decryptedRes.user_id,
+          short_name: decryptedRes.short_name,
+          branchCode: decryptedRes.branch_code,
+          level_id: decryptedRes.level_id,
         });
 
         window.location.reload();
@@ -94,7 +94,7 @@ export default function LoginForm() {
       )}
       <form onSubmit={handleLogin}>
         <Stack spacing={3}>
-          <TextField name="userId" label="Email address" onChange={handleChange} />
+          <TextField name="user_id" label="Email address" onChange={handleChange} />
 
           <TextField
             name="password"
