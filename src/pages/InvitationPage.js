@@ -92,6 +92,8 @@ export default function InvitationPage() {
 
   const [openModal, setOpenModal] = useState(false);
 
+  const [isDelete, setIsDelete] = useState(false);
+
   const [rowData, setRowData] = useState(null)
 
   const { metadata } = useContext(MetadataContext);
@@ -158,6 +160,7 @@ export default function InvitationPage() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setIsDelete(false)
     setRowData(null)
   };
 
@@ -169,7 +172,7 @@ export default function InvitationPage() {
   }
 
   const req = {
-    userId: metadata.userId,
+    user_id: metadata.user_id,
   };
 
   const InquiryInvitationList = async () => {
@@ -323,7 +326,13 @@ export default function InvitationPage() {
                               Send Invitation
                             </MenuItem>
 
-                            <MenuItem sx={{ color: 'error.main' }}>
+                            <MenuItem sx={{ color: 'error.main' }}
+                              onClick={() => {
+                                handleOpenModal(rowData);
+                                setIsDelete(true)
+                                handleCloseMenu();
+                              }}
+                            >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </MenuItem>
@@ -334,6 +343,11 @@ export default function InvitationPage() {
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
                       <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                  {filteredUsers.length === 0 && (
+                    <TableRow style={{ height: 53 * emptyRows }}>
+                      <TableCell colSpan={6}>Data Not Found</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -358,6 +372,7 @@ export default function InvitationPage() {
           onClose={handleCloseModal}
           InquiryInvitationList={InquiryInvitationList}
           initialData = {rowData}
+          isDelete = {isDelete}
           />
         )}
       </Container>

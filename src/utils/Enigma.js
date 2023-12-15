@@ -62,15 +62,15 @@ export const SendRequest = async (baseURL, request) => {
   const token = Cookies.get('session');
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+    // 'Access-Control-Allow-Origin': '*',
+    // 'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
   const instance = axios.create({
     baseURL, // Replace with your API base URL
     headers,
-    withCredentials: true,
+    // withCredentials: true,
   });
 
   const encryptedRequest = EncryptData(request, REACT_APP_ENCRYPTION_SECRET);
@@ -88,6 +88,16 @@ export const SendRequest = async (baseURL, request) => {
     }
     return res;
   } catch (error) {
+    if (error.response.status === 401) {
+      return {
+          data: {
+            code: 401,
+            message: {
+              Description: "Invalid Auth / Session Expired. Please Login Again"
+            }
+          }
+      }
+    }
     console.error('Error sending request:', error);
   }
 };

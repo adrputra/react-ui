@@ -24,8 +24,6 @@ export default function Router() {
 
   useEffect(() => {
       const sessionExists = Cookies.get('session', { raw: true });
-      // const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'; // Check if user was previously logged in
-      console.log('Inside Use Effect ', sessionExists, isLoggedIn);
       if (sessionExists) {
         setIsLoggedIn(true);
          (async () => {
@@ -48,7 +46,6 @@ export default function Router() {
 
   // const currentLocation = "/dashboard/products";
   let currentLocation;
-  console.log(location.pathname)
   if (isLoggedIn){
     if (location.pathname !== '/login') {
       localStorage.setItem('currentLocation', location.pathname);

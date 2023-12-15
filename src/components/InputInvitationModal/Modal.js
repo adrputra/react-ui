@@ -40,21 +40,30 @@ const modalButtonStyle = {
   marginLeft: '8px',
 };
 
-export default function InputInvitationModal({ open, isError, onClose, InquiryInvitationList, initialData }) {
+export default function InputInvitationModal({ open, isError, onClose, InquiryInvitationList, initialData, isDelete }) {
   const [invitationData, setInvitationData] = useState({ level: 'Reguler', pax: 1 });
-  const [errorMessage, setErrorMessage] = useState({});
   const { metadata } = useContext(MetadataContext);
 
+  console.log(initialData, isDelete);
+
+  const deleteConfirmationDialog = () => {
+    <Modal open={open} onClose={onClose} style={modalContainerStyle} />
+  }
+
+  // eslint-disable-next-line consistent-return
   useEffect(() => {
     if (initialData) {
-      // If initialData is provided, update the invitationData state with it
+      if (isDelete) {
+        setInvitationData({ ...initialData, act: 'd' });
+        return deleteConfirmationDialog();
+      }
       setInvitationData(initialData);
     }
-  }, []);
+  }, [initialData, isDelete]);
 
   const handleInvitationData = (e) => {
     const act = initialData ? 'c' : 'a';
-    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId, act }));
+    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, user_id: metadata.user_id, act }));
   };
 
   const handlePhoneNumber = (event) => {
@@ -95,7 +104,7 @@ export default function InputInvitationModal({ open, isError, onClose, InquiryIn
 
   return (
     <>
-      <Modal open={open} onClose={onClose} style={modalContainerStyle}>
+      <Modal open={open && !isDelete} onClose={onClose} style={modalContainerStyle}>
         <Container maxWidth="sm">
           <div style={modalContentStyle}>
             <Stack
@@ -178,6 +187,33 @@ export default function InputInvitationModal({ open, isError, onClose, InquiryIn
           </div>
         </Container>
       </Modal>
+
+      <Modal open={isDelete} onClose={onClose} style={modalContainerStyle}>
+      <Container maxWidth="sm">
+        <div style={modalContentStyle}>
+          <Stack
+            direction="column"
+            justifyContent="space-evenly"
+            spacing={3}
+            divider={<Divider orientation="horizontal" flexItem />}
+            sx={{ ml: 3 }}
+          >
+            <Typography variant="h3" style={modalTitleStyle}>
+              Delete Invitation
+            </Typography>
+            <Typography>Are you sure you want to delete this invitation?</Typography>
+            <Stack direction="row" spacing={3}>
+                <Button variant="contained" color="error" style={modalButtonStyle} onClick={onClose}>
+                  Close
+                </Button>
+                <Button variant="contained" color="primary" style={modalButtonStyle} onClick={addInvitation}>
+                  Submit
+                </Button>
+              </Stack>
+          </Stack>
+        </div>
+      </Container>
+    </Modal>
     </>
   );
 }

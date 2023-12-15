@@ -32,10 +32,11 @@ import { SendRequest } from '../utils/Enigma'
 const { REACT_APP_GET_USER_LIST } = process.env;
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'full_name', label: 'Full Name', alignRight: false },
+  { id: 'short_name', label: 'Short Name', alignRight: false },
   { id: 'id', label: 'User ID', alignRight: false },
   { id: 'level', label: 'Level ID', alignRight: false },
-  { id: '', label: 'Actions', alignRight: true },
+  { id: 'action', label: 'Actions', alignRight: true },
   { id: '', label: '', alignRight: true },
 ];
 
@@ -85,7 +86,7 @@ export default function UserListPage() {
 
   const [errorMessage, setErrorMessage] = useState({});
 
-  const [UserList, setUserList] = useState();
+  const [userList, setUserList] = useState();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
@@ -93,10 +94,14 @@ export default function UserListPage() {
 
   const [rowData, setRowData] = useState(null);
 
+  const [isDelete, setIsDelete] = useState(false);
+
   const { metadata } = useContext(MetadataContext);
 
-  const handleOpenMenu = (event) => {
+  const handleOpenMenu = (event, row) => {
     setOpen(event.currentTarget);
+    setRowData(row);
+
   };
 
   const handleCloseMenu = () => {
@@ -111,18 +116,18 @@ export default function UserListPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = UserList.map((n) => n.code);
+      const newSelecteds = userList.map((n) => n.userList);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, code) => {
-    const selectedIndex = selected.indexOf(code);
+  const handleClick = (event, user_id) => {
+    const selectedIndex = selected.indexOf(user_id);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, code);
+      newSelected = newSelected.concat(selected, user_id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -147,7 +152,7 @@ export default function UserListPage() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - UserList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   const handleOpenModal = (row) => {
     setOpenModal(true);
@@ -157,6 +162,7 @@ export default function UserListPage() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setIsDelete(false)
     setRowData(null);
   };
 
@@ -168,7 +174,7 @@ export default function UserListPage() {
   };
 
   const req = {
-    userId: metadata.userId,
+    user_id: metadata.user_id,
   };
 
   const InquiryUserList = async () => {
@@ -182,13 +188,13 @@ export default function UserListPage() {
         setUserList(response.data.message.Result);
       } else {
         setErrorMessage({ msg: response.data.message.Description, code: 'error' });
-        console.log(errorMessage);
+        console.error(errorMessage);
       }
     } catch (error) {
       setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
-      console.log(error);
+      console.error(error);
     } finally {
-      console.log('User List Data Length', UserList ? UserList.length : 0);
+      console.info('User List Data Length', userList ? userList.length : 0);
       setTimeout(() => {
         setErrorMessage({});
       }, 5000);
@@ -200,11 +206,11 @@ export default function UserListPage() {
   }, []);
 
   useEffect(() => {
-    if (UserList) {
-      const sortedFilteredUsers = applySortFilter(UserList, getComparator(order, orderBy), filterName);
+    if (userList) {
+      const sortedFilteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
       setFilteredUsers(sortedFilteredUsers); // Store the filtered users in state
     }
-  }, [UserList, order, orderBy, filterName]);
+  }, [userList, order, orderBy, filterName]);
 
   return (
     <>
@@ -242,7 +248,7 @@ export default function UserListPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={UserList ? UserList.length : 0}
+                  rowCount={userList ? userList.length : 0}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -250,7 +256,7 @@ export default function UserListPage() {
                 <TableBody>
                   {filteredUsers &&
                     filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { full_name, user_id, level_id } = row;
+                      const { full_name, short_name, user_id, level_id } = row;
                       const selectedUser = selected.indexOf(user_id) !== -1;
 
                       return (
@@ -260,6 +266,8 @@ export default function UserListPage() {
                           </TableCell>
 
                           <TableCell align="left">{full_name}</TableCell>
+
+                          <TableCell align="left">{short_name}</TableCell>
 
                           <TableCell align="left">{user_id}</TableCell>
 
@@ -306,7 +314,13 @@ export default function UserListPage() {
                               Send Invitation
                             </MenuItem>
 
-                            <MenuItem sx={{ color: 'error.main' }}>
+                            <MenuItem sx={{ color: 'error.main' }}
+                              onClick={() => {
+                                handleOpenModal(rowData);
+                                setIsDelete(true)
+                                handleCloseMenu();
+                              }}
+                            >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </MenuItem>
@@ -319,6 +333,11 @@ export default function UserListPage() {
                       <TableCell colSpan={6} />
                     </TableRow>
                   )}
+                  {filteredUsers.length === 0 && (
+                    <TableRow style={{ height: 53 * emptyRows }}>
+                      <TableCell colSpan={6}>Data Not Found</TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -327,7 +346,7 @@ export default function UserListPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={UserList ? UserList.length : 0}
+            count={userList ? userList.length : 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -341,6 +360,7 @@ export default function UserListPage() {
             onClose={handleCloseModal}
             InquiryUserList={InquiryUserList}
             initialData={rowData}
+            isDelete={isDelete}
           />
         )}
       </Container>
