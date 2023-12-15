@@ -88,6 +88,16 @@ export const SendRequest = async (baseURL, request) => {
     }
     return res;
   } catch (error) {
+    if (error.response.status === 401) {
+      return {
+          data: {
+            code: 401,
+            message: {
+              Description: "Invalid Auth / Session Expired. Please Login Again"
+            }
+          }
+      }
+    }
     console.error('Error sending request:', error);
   }
 };
