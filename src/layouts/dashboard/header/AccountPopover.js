@@ -123,10 +123,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {metadata.shortName}
+            {metadata.short_name}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {metadata.userId}
+            {metadata.user_id}
           </Typography>
         </Box>
 

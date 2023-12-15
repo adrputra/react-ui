@@ -59,7 +59,7 @@ function GetNavConfig() {
     },
   ];
 
-  const filteredNavConfig = navConfig.filter((item) => item.level.includes(parseInt(metadata.levelId, 10)));
+  const filteredNavConfig = navConfig.filter((item) => item.level.includes(parseInt(metadata.level_id, 10)));
   return filteredNavConfig;
 }
 
