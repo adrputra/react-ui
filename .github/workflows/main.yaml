@@ -20,6 +20,7 @@ jobs:
         port: ${{ secrets.PORT }}
         command_timeout: 30m
         script: |
+          cp ${{ secrets.SECRET_SERVICE}}/.env ${{ secrets.NAME }}/.env
           cd ${{ secrets.NAME }}
           git pull
 
