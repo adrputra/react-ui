@@ -21,7 +21,7 @@ import { MetadataContext } from '../../../hooks/MetadataContext';
 import { EncryptData, GetMetadata } from '../../../utils/Enigma';
 
 
-const { REACT_APP_LOGIN_API, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
+const { REACT_APP_LOGIN_API, JWT_SECRET, ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
@@ -39,7 +39,7 @@ export default function LoginForm() {
     event.preventDefault()
     sessionStorage.removeItem('metadata');
 
-    const encryptedRequest =  EncryptData(userLogin, REACT_APP_ENCRYPTION_SECRET)
+    const encryptedRequest =  EncryptData(userLogin, ENCRYPTION_SECRET)
     const req = {
       request: encryptedRequest
     }
@@ -53,7 +53,7 @@ export default function LoginForm() {
       console.info('RES Login', response);
       
       if (response.data.code === 200) {
-        const { decryptedRes, decodedRes } = GetMetadata(response.data.message.token, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET)
+        const { decryptedRes, decodedRes } = GetMetadata(response.data.message.token, JWT_SECRET, ENCRYPTION_SECRET)
 
         const timeUntilExpiration = (new Date((decodedRes.exp + 7 * 60 * 60) * 1000))
 
