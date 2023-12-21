@@ -15,7 +15,7 @@ import InvitationPage from './pages/InvitationPage';
 import UserListPage from './pages/UserListPage';
 import { GetMetadata } from './utils/Enigma';
 
-const { REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
+const { JWT_SECRET, ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -30,8 +30,8 @@ export default function Router() {
            try {
              const { decryptedRes } = await GetMetadata(
                sessionExists,
-               REACT_APP_JWT_SECRET,
-               REACT_APP_ENCRYPTION_SECRET
+               JWT_SECRET,
+               ENCRYPTION_SECRET
              );
              sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
            } catch (error) {

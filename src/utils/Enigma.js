@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const { REACT_APP_ENCRYPTION_SECRET } = process.env;
+const { ENCRYPTION_SECRET } = process.env;
 
 // Initialize the ECB mode and PKCS7 padding
 // CryptoJS.mode.ECB = (function () {
@@ -73,14 +73,14 @@ export const SendRequest = async (baseURL, request) => {
     // withCredentials: true,
   });
 
-  const encryptedRequest = EncryptData(request, REACT_APP_ENCRYPTION_SECRET);
+  const encryptedRequest = EncryptData(request, ENCRYPTION_SECRET);
 
   const req = { request: encryptedRequest };
   console.log('SendRequest', req);
 
   try {
     const res = await instance.post(baseURL, JSON.stringify(req));
-    const response = DecryptData(res.data.message.Result, REACT_APP_ENCRYPTION_SECRET);
+    const response = DecryptData(res.data.message.Result, ENCRYPTION_SECRET);
     if (response) {
       res.data.message.Result = response;
     } else {
