@@ -22,6 +22,7 @@ jobs:
         script: |
           cd ${{ secrets.NAME }}
           git pull
+          cd
           cp ${{ secrets.SECRET_SERVICE}}/.env ${{ secrets.NAME }}/.env.production
 
     - name: Remove Old Image And Build New One
