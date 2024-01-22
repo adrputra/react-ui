@@ -13,9 +13,10 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import InvitationPage from './pages/InvitationPage';
 import UserListPage from './pages/UserListPage';
+import ScanPage from './pages/ScanPage';
 import { GetMetadata } from './utils/Enigma';
 
-const { JWT_SECRET, ENCRYPTION_SECRET } = process.env;
+const { REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -30,8 +31,8 @@ export default function Router() {
            try {
              const { decryptedRes } = await GetMetadata(
                sessionExists,
-               JWT_SECRET,
-               ENCRYPTION_SECRET
+               REACT_APP_JWT_SECRET,
+               REACT_APP_ENCRYPTION_SECRET
              );
              sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
            } catch (error) {
@@ -67,6 +68,7 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'invitation', element: <InvitationPage /> },
+        { path: 'scanner', element: <ScanPage /> },
       ],
     },
     {
