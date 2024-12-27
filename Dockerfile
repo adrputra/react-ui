@@ -1,32 +1,23 @@
-# Stage 1: Build Stage
+# Use an official Node.js runtime as the base image
 FROM oven/bun:slim AS builder
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy package files to the working directory
-COPY package.json bun.lockb ./
+# Copy the package.json and package-lock.json files to the working directory
+COPY package*.json bun.lockb ./
 
-# Install dependencies using Bun
+# Install the dependencies
 RUN bun install --no-cache
-
-# Copy the rest of the application code
+RUN bun install serve@14.2.1
+# Copy the entire project to the working directory
 COPY . .
 
-# Build the React app
-RUN bun run build
-
-# Stage 2: Serve Stage
-FROM caddy:alpine
-
-# Set working directory for Caddy's static file server
-WORKDIR /usr/share/caddy
-
-# Copy build output from the build stage
-COPY --from=builder /app/build ./ui
-
-# Expose the port used by Caddy
+# Expose the desired port
+# ARG PORT
 EXPOSE 3001
 
-# Start the server
-CMD ["caddy", "file-server", "--root", "/usr/share/caddy/ui", "--listen", ":3001"]
+# Define the command to run the application
+RUN bun run build
+
+CMD [ "npx", "serve", "build", "-l", "3001" ]
