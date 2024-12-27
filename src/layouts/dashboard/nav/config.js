@@ -34,6 +34,12 @@ function GetNavConfig() {
       level: [0, 1],
     },
     {
+      title: 'scanner',
+      path: '/dashboard/scanner',
+      icon: icon('ic_user'),
+      level: [0, 1],
+    },
+    {
       title: 'product',
       path: '/dashboard/products',
       icon: icon('ic_cart'),

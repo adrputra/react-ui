@@ -13,9 +13,11 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import InvitationPage from './pages/InvitationPage';
 import UserListPage from './pages/UserListPage';
+import ScanPage from './pages/ScanPage';
 import { GetMetadata } from './utils/Enigma';
+import PaymentPage from './pages/PaymentPage';
 
-const { JWT_SECRET, ENCRYPTION_SECRET } = process.env;
+const { REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET } = process.env;
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -23,36 +25,31 @@ export default function Router() {
   const location = useLocation();
 
   useEffect(() => {
-      const sessionExists = Cookies.get('session', { raw: true });
-      if (sessionExists) {
-        setIsLoggedIn(true);
-         (async () => {
-           try {
-             const { decryptedRes } = await GetMetadata(
-               sessionExists,
-               JWT_SECRET,
-               ENCRYPTION_SECRET
-             );
-             sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
-           } catch (error) {
-             console.error('Error getting and storing metadata:', error);
-           }
-         })();
-      } else {
-        setIsLoggedIn(false);
-        sessionStorage.setItem('isLoggedIn', false); // Store the logged-in state in sessionStorage
-      }
+    const sessionExists = Cookies.get('session', { raw: true });
+    if (sessionExists) {
+      setIsLoggedIn(true);
+      (async () => {
+        try {
+          const { decryptedRes } = await GetMetadata(sessionExists, REACT_APP_JWT_SECRET, REACT_APP_ENCRYPTION_SECRET);
+          sessionStorage.setItem('metadata', JSON.stringify(decryptedRes));
+        } catch (error) {
+          console.error('Error getting and storing metadata:', error);
+        }
+      })();
+    } else {
+      setIsLoggedIn(false);
+      sessionStorage.setItem('isLoggedIn', false); // Store the logged-in state in sessionStorage
+    }
   }, []);
 
   // const currentLocation = "/dashboard/products";
   let currentLocation;
-  if (isLoggedIn){
+  if (isLoggedIn) {
     if (location.pathname !== '/login') {
       localStorage.setItem('currentLocation', location.pathname);
     }
     currentLocation = localStorage.getItem('currentLocation') || '/dashboard/app';
   }
-  
 
   console.log('State before route : ', isLoggedIn);
   const routes = useRoutes([
@@ -67,12 +64,14 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'invitation', element: <InvitationPage /> },
+        { path: 'scanner', element: <ScanPage /> },
       ],
     },
     {
       path: '',
       element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
     },
+    { path: '/payment', element: <PaymentPage /> },
     {
       path: '/login',
       element: isLoggedIn ? <Navigate to={currentLocation} /> : <LoginPage />,
