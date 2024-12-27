@@ -50,4 +50,4 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
           
           # Run the new container
-          docker run -d --name ${{ secrets.NAME }} -p 8001:8001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
+          docker run -d --name ${{ secrets.NAME }} -p 3001:3001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
