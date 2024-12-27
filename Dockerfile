@@ -1,5 +1,5 @@
 # Stage 1: Build Stage
-FROM oven/bun:edge-slim AS builder
+FROM oven/bun:slim AS builder
 
 # Set the working directory in the container
 WORKDIR /app
