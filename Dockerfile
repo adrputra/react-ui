@@ -19,5 +19,9 @@ EXPOSE 3001
 
 # Define the command to run the application
 RUN bun run build
+RUN mkdir -p ./build/ui
+RUN mv ./build/static ./build/ui
+RUN mv ./build/assets ./build/ui
+RUN mv ./build/favicon ./build/ui
 
 CMD [ "bun", "serve", "build", "-l", "3001" ]
