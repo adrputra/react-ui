@@ -19,9 +19,12 @@ EXPOSE 3001
 
 # Define the command to run the application
 RUN bun run build
-RUN mkdir -p ./build/ui
-RUN mv ./build/static ./build/ui
-RUN mv ./build/assets ./build/ui
-RUN mv ./build/favicon ./build/ui
+RUN ls -la ./build
+
+# Ensure UI directory and move files if they exist
+RUN mkdir -p ./build/ui \
+    && [ -d ./build/static ] && mv ./build/static ./build/ui || echo "No static directory to move" \
+    && [ -d ./build/assets ] && mv ./build/assets ./build/ui || echo "No assets directory to move" \
+    && [ -d ./build/favicon ] && mv ./build/favicon ./build/ui || echo "No favicon directory to move"
 
 CMD [ "bun", "serve", "build", "-l", "3001" ]
