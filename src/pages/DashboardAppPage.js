@@ -148,7 +148,7 @@ export default function DashboardAppPage() {
                 id: faker.datatype.uuid(),
                 title: faker.name.jobTitle(),
                 description: faker.name.jobTitle(),
-                image: `/ui/assets/images/covers/cover_${index + 1}.jpg`,
+                image: `/assets/images/covers/cover_${index + 1}.jpg`,
                 postedAt: faker.date.recent(),
               }))}
             />

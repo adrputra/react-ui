@@ -15,7 +15,7 @@ export default function App() {
   return (
     <MetadataProvider>
       <HelmetProvider>
-        <BrowserRouter basename="/ui">
+        <BrowserRouter>
           <ThemeProvider>
             <ScrollToTop />
             <StyledChart />

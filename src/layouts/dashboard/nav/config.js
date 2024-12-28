@@ -4,7 +4,7 @@ import { MetadataContext } from '../../../hooks/MetadataContext';
 
 // ----------------------------------------------------------------------
 
-const icon = (name) => <SvgColor src={`/ui/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
+const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
 function GetNavConfig() {
   const { metadata } = useContext(MetadataContext);

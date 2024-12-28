@@ -4,7 +4,6 @@
   "license": "MIT",
   "version": "1.7.0",
   "private": false,
-  "homepage": "/ui",
   "scripts": {
     "start": "react-scripts start",
     "build": "NODE_ENV=production GENERATE_SOURCEMAP=false react-scripts build",

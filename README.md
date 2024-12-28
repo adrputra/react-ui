@@ -4,7 +4,7 @@
 
 > Free React Admin Dashboard made with Material-UI components and React.
 
-![preview](public/ui/assets/preview.jpg)
+![preview](public/assets/preview.jpg)
 
 | [Minimal Free](https://minimal-kit-react.vercel.app/) | [Minimal](https://material-ui.com/store/items/minimal-dashboard/) |
 | ----------------------------------------------------- | :---------------------------------------------------------------- |

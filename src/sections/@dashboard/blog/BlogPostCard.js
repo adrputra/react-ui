@@ -93,7 +93,7 @@ export default function BlogPostCard({ post, index }) {
         >
           <SvgColor
             color="paper"
-            src="/ui/assets/icons/shape-avatar.svg"
+            src="/assets/icons/shape-avatar.svg"
             sx={{
               width: 80,
               height: 36,
