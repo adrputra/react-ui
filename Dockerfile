@@ -4,20 +4,20 @@ FROM node:20-alpine
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files
-COPY package.json package-lock.json ./
+# Copy the package.json and yarn.lock files to the working directory
+COPY package.json yarn.lock ./
 
-# Install dependencies using npm
-RUN npm ci --loglevel=verbose
+# Install dependencies
+RUN yarn install
 
-# Copy the entire project into the container
+# Copy the entire project to the working directory
 COPY . .
 
 # Build the React app
-RUN npm run build
+RUN yarn build
 
-# Install `serve` globally to serve the app
-RUN npm install -g serve
+# Install serve to serve the built files
+RUN yarn global add serve
 
 # Expose the desired port
 EXPOSE 3001
