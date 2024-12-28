@@ -29,7 +29,7 @@ RUN mkdir -p ./build/ui \
     && [ -d ./build/assets ] && mv ./build/assets ./build/ui || echo "No assets directory to move" \
     && [ -d ./build/favicon ] && mv ./build/favicon ./build/ui || echo "No favicon directory to move" \
     && [ -f ./build/manifest.json ] && mv ./build/manifest.json ./build/ui || echo "No manifest.json to move" \
-    && [ -f ./build/assets-manifest.json ] && mv ./build/assets-manifest.json ./build/ui || echo "No assets-manifest.json to move" \
+    && [ -f ./build/asset-manifest.json ] && mv ./build/asset-manifest.json ./build/ui || echo "No assets-manifest.json to move" \
     && [ -f ./build/index.html ] && mv ./build/index.html ./build/ui || echo "No index.html to move" \
     && [ -f ./build/_redirects ] && mv ./build/_redirects ./build/ui || echo "No _redirects to move"
 
