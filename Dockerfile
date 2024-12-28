@@ -1,15 +1,15 @@
 # Use an official Node.js runtime as the base image
-FROM oven/bun:latest AS builder
+FROM node:20-alpine
 
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files to the working directory
-COPY package*.json bun.lockb ./
+COPY package*.json ./
 
 # Install the dependencies
-RUN bun install --no-cache
-RUN bun install serve@14.2.1
+RUN yarn install
+# RUN bun install serve@14.2.1
 # Copy the entire project to the working directory
 COPY . .
 
@@ -18,7 +18,7 @@ COPY . .
 EXPOSE 3001
 
 # Define the command to run the application
-RUN bun run build
+RUN yarn build
 
 # Debug: List the contents of the build directory
 RUN ls -la ./build
@@ -33,4 +33,4 @@ RUN mkdir -p ./build/ui \
     && [ -f ./build/index.html ] && mv ./build/index.html ./build/ui || echo "No index.html to move" \
     && [ -f ./build/_redirects ] && mv ./build/_redirects ./build/ui || echo "No _redirects to move"
 
-CMD [ "bun", "serve", "build", "-l", "3001" ]
+CMD [ "npx", "serve", "build", "-l", "3001" ]
