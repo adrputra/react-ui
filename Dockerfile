@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM oven/bun:slim AS builder
+FROM oven/bun:latest AS builder
 
 # Set the working directory in the container
 WORKDIR /app
