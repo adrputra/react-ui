@@ -20,6 +20,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
+import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import useResponsive from '../hooks/useResponsive';
 import Logo from '../components/logo';
@@ -56,6 +57,7 @@ export default function PaymentPage() {
   const [plan, setPlan] = useState('bronze');
   const [error, setError] = useState(null);
   const [errorMessage, setErrorMessage] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const renderPrice = () => {
     if (plan === 'bronze') {
@@ -94,7 +96,7 @@ export default function PaymentPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     const request = {
       ...req,
       amount: renderPrice(),
@@ -104,7 +106,7 @@ export default function PaymentPage() {
     console.log(request);
 
     try {
-      const response = await axios.post("http://localhost:8080/api/payment", request);
+      const response = await axios.post('https://ravenclaw.eventarry.com/payment', request);
 
       console.info('RES Payment', response.data);
 
@@ -115,6 +117,8 @@ export default function PaymentPage() {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -207,15 +211,16 @@ export default function PaymentPage() {
                   required
                 />
                 <Box display={'flex'} justifyContent={'flex-end'}>
-                  <Button
+                  <LoadingButton
                     variant="contained"
                     color="primary"
                     type="submit"
                     justifyContent={'flex-end'}
+                    loading={loading}
                     disabled={!isFormValid}
                   >
                     Submit
-                  </Button>
+                  </LoadingButton>
                 </Box>
               </Stack>
             </Box>
