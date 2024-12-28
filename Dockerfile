@@ -4,25 +4,29 @@ FROM oven/bun:slim AS builder
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the package.json and bun.lockb files to the working directory
+# Copy the package.json and package-lock.json files to the working directory
 COPY package*.json bun.lockb ./
 
 # Install the dependencies
 RUN bun install --no-cache
 RUN bun install serve@14.2.1
-
 # Copy the entire project to the working directory
 COPY . .
 
 # Expose the desired port
+# ARG PORT
 EXPOSE 3001
 
-# Build the application
+# Define the command to run the application
 RUN bun run build
+RUN mkdir -p ./build/ui
 
-# Create the /build/ui directory and move everything into it
-RUN mkdir -p ./build/ui \
-    && mv ./build/* ./build/ui
+RUN mv ./build/static ./build/ui
+RUN mv ./build/assets ./build/ui
+RUN mv ./build/favicon ./build/ui
+RUN mv ./build/manifest.json ./build/ui
+RUN mv ./build/assets-manifest.json ./build/ui
+RUN mv ./build/index.html ./build/ui
+RUN mv ./build/_redirects ./build/ui
 
-# Serve the application
 CMD [ "bun", "serve", "build", "-l", "3001" ]
