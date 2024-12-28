@@ -67,14 +67,14 @@ export default function Router() {
         { path: 'scanner', element: <ScanPage /> },
       ],
     },
-    {
-      path: '',
-      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
-    },
     { path: '/payment', element: <PaymentPage /> },
     {
       path: '/login',
       element: isLoggedIn ? <Navigate to={currentLocation} /> : <LoginPage />,
+    },
+    {
+      path: '',
+      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
     },
     {
       element: <SimpleLayout />,
