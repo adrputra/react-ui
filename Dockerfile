@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Install the dependencies
 RUN yarn install
-# RUN bun install serve@14.2.1
+RUN yarn add global serve
 # Copy the entire project to the working directory
 COPY . .
 
@@ -20,4 +20,4 @@ EXPOSE 3001
 # Define the command to run the application
 RUN yarn build
 
-CMD [ "npx", "serve", "build", "-l", "3001" ]
+CMD ["serve", "-s", "build", "-l", "3001"]

@@ -15,10 +15,13 @@ export default function App() {
   return (
     <MetadataProvider>
       <HelmetProvider>
+        <BrowserRouter>
           <ThemeProvider>
+            <ScrollToTop />
             <StyledChart />
             <Router />
           </ThemeProvider>
+        </BrowserRouter>
       </HelmetProvider>
     </MetadataProvider>
   );
