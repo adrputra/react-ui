@@ -64,9 +64,9 @@ export default function PaymentPage() {
       return 150000;
     }
     if (plan === 'silver') {
-      return 1000;
+      return 500000;
     }
-    return 600000;
+    return 2000000;
   };
 
   const formatterPrice = (price) => price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');

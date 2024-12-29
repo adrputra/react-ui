@@ -50,4 +50,9 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
           
           # Run the new container
-          docker run -d --name ${{ secrets.NAME }} -p 3001:3001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
+          docker run -d --name ${{ secrets.NAME }} --memory 512m \
+          --memory-reservation 256m \
+          --network mcu \
+          --restart unless-stopped \
+          -e PORT=3001 \
+          -p 3001:3001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
