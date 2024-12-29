@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -69,6 +69,12 @@ export default function PaymentPage() {
     return 2000000;
   };
 
+  useEffect(() => {
+    return () => {
+      setReq({});
+    };
+  }, []);
+
   const formatterPrice = (price) => price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
   const handleChange = (event) => {
@@ -117,6 +123,7 @@ export default function PaymentPage() {
       }
     } catch (error) {
       console.error(error);
+      handleErrorMessage({ msg: error.message, code: 'error' });
     } finally {
       setLoading(false);
     }
