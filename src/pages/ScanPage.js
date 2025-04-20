@@ -13,7 +13,7 @@ export default function ScanPage() {
 
   const handleValue = (val) => {
       setValue(val);
-      setInvitationData({act : 'c', code: val.code, name: val.name, user_id: val.user_id, level: val.level, pax: val.pax, phone_number: val.phone_number, status: 'Attended'});
+      setInvitationData({act : 'c', code: val.code, name: val.name, userId: val.userId, level: val.level, pax: val.pax, phoneNumber: val.phoneNumber, status: 'Attended'});
   };
 
   useEffect(() => {

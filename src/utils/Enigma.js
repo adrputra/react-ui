@@ -76,7 +76,7 @@ export const SendRequest = async (baseURL, request) => {
   const encryptedRequest = EncryptData(request, REACT_APP_ENCRYPTION_SECRET);
 
   const req = { request: encryptedRequest };
-  console.log('SendRequest', req);
+  console.log('SendRequest', req, headers);
 
   try {
     const res = await instance.post(baseURL, JSON.stringify(req));

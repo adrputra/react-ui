@@ -32,8 +32,8 @@ import { SendRequest } from '../utils/Enigma'
 const { REACT_APP_GET_USER_LIST } = process.env;
 
 const TABLE_HEAD = [
-  { id: 'full_name', label: 'Full Name', alignRight: false },
-  { id: 'short_name', label: 'Short Name', alignRight: false },
+  { id: 'fullName', label: 'Full Name', alignRight: false },
+  { id: 'shortName', label: 'Short Name', alignRight: false },
   { id: 'id', label: 'User ID', alignRight: false },
   { id: 'level', label: 'Level ID', alignRight: false },
   { id: 'action', label: 'Actions', alignRight: true },
@@ -123,11 +123,11 @@ export default function UserListPage() {
     setSelected([]);
   };
 
-  const handleClick = (event, user_id) => {
-    const selectedIndex = selected.indexOf(user_id);
+  const handleClick = (event, userId) => {
+    const selectedIndex = selected.indexOf(userId);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, user_id);
+      newSelected = newSelected.concat(selected, userId);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -174,7 +174,7 @@ export default function UserListPage() {
   };
 
   const req = {
-    user_id: metadata.user_id,
+    userId: metadata.userId,
   };
 
   const InquiryUserList = async () => {
@@ -256,22 +256,22 @@ export default function UserListPage() {
                 <TableBody>
                   {filteredUsers &&
                     filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { full_name, short_name, user_id, level_id } = row;
-                      const selectedUser = selected.indexOf(user_id) !== -1;
+                      const { fullName, shortName, userId, levelId } = row;
+                      const selectedUser = selected.indexOf(userId) !== -1;
 
                       return (
-                        <TableRow hover key={user_id} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                        <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                           <TableCell padding="checkbox">
-                            <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, user_id)} />
+                            <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userId)} />
                           </TableCell>
 
-                          <TableCell align="left">{full_name}</TableCell>
+                          <TableCell align="left">{fullName}</TableCell>
 
-                          <TableCell align="left">{short_name}</TableCell>
+                          <TableCell align="left">{shortName}</TableCell>
 
-                          <TableCell align="left">{user_id}</TableCell>
+                          <TableCell align="left">{userId}</TableCell>
 
-                          <TableCell align="left">{level_id}</TableCell>
+                          <TableCell align="left">{levelId}</TableCell>
 
                           <TableCell align="right">
                             <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, row)}>

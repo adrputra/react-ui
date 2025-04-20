@@ -20,7 +20,7 @@ RUN yarn build
 RUN yarn global add serve
 
 # Expose the desired port
-EXPOSE 3001
+EXPOSE 3003
 
 # Command to serve the React app
-CMD ["serve", "-s", "build", "-l", "3001"]
+CMD ["serve", "-s", "build", "-l", "3003"]

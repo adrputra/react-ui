@@ -63,7 +63,7 @@ export default function InputInvitationModal({ open, isError, onClose, InquiryIn
 
   const handleInvitationData = (e) => {
     const act = initialData ? 'c' : 'a';
-    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, user_id: metadata.user_id, act }));
+    setInvitationData((prev) => ({ ...prev, [e.target.name]: e.target.value, userId: metadata.userId, act }));
   };
 
   const handlePhoneNumber = (event) => {
@@ -72,7 +72,7 @@ export default function InputInvitationModal({ open, isError, onClose, InquiryIn
     const numericValue = inputValue.replace(/[^0-9]/g, '');
     // Update the input value with the sanitized numeric value
 
-    handleInvitationData({ target: { name: 'phone_number', value: numericValue } });
+    handleInvitationData({ target: { name: 'phoneNumber', value: numericValue } });
   }
 
   const addInvitation = async () => {
@@ -130,9 +130,9 @@ export default function InputInvitationModal({ open, isError, onClose, InquiryIn
                 <Stack direction="row" spacing={2} alignItems="center">
                   <Iconify icon={'basil:phone-solid'} width={50} sx={{ color: 'primary.main' }} />
                   <TextField
-                    name="phone_number"
+                    name="phoneNumber"
                     label="Phone Number"
-                    value={invitationData.phone_number || ''}
+                    value={invitationData.phoneNumber || ''}
                     inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                     onChange={handlePhoneNumber}
                   />

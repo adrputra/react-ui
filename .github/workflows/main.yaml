@@ -1,5 +1,4 @@
-name: CI/CD Eventarry UI
-
+name: CI/CD EVENTARRY UI
 on:
   push:
     branches:
@@ -51,8 +50,9 @@ jobs:
           
           # Run the new container
           docker run -d --name ${{ secrets.NAME }} --memory 512m \
+          --env-file ${{ secrets.SECRET_SERVICE }}/.env \
           --memory-reservation 256m \
-          --network mcu \
+          --network main \
           --restart unless-stopped \
-          -e PORT=3001 \
-          -p 3001:3001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
+          -e PORT=3003 \
+          -p 3003:3003 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest

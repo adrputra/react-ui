@@ -97,7 +97,7 @@ export default function PaymentPage() {
   const handlePhoneNumber = (event) => {
     const inputValue = event.target.value;
     const numericValue = inputValue.replace(/[^0-9]/g, '');
-    setReq((prev) => ({ ...prev, phone_number: numericValue }));
+    setReq((prev) => ({ ...prev, phoneNumber: numericValue }));
   };
 
   const handleSubmit = async (e) => {
@@ -136,7 +136,7 @@ export default function PaymentPage() {
     }, 5000);
   };
 
-  const isFormValid = !error && req.email && req.phone_number && req.name;
+  const isFormValid = !error && req.email && req.phoneNumber && req.name;
 
   return (
     <>

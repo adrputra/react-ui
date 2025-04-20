@@ -35,7 +35,7 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'id', label: 'ID', alignRight: false },
   { id: 'level', label: 'Level', alignRight: false },
-  { id: 'phone_number', label: 'Phone Number', alignRight: false },
+  { id: 'phoneNumber', label: 'Phone Number', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '', label: 'Actions', alignRight: true },
 ];
@@ -172,7 +172,7 @@ export default function InvitationPage() {
   }
 
   const req = {
-    user_id: metadata.user_id,
+    userId: metadata.userId,
   };
 
   const InquiryInvitationList = async () => {
@@ -250,7 +250,7 @@ export default function InvitationPage() {
                 <TableBody>
                   {filteredUsers &&
                     filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { name, code, level, phone_number, status } = row;
+                      const { name, code, level, phoneNumber, status } = row;
                       const selectedUser = selected.indexOf(code) !== -1;
                       let statusColor;
 
@@ -282,7 +282,7 @@ export default function InvitationPage() {
 
                           <TableCell align="left">{level}</TableCell>
 
-                          <TableCell align="left">{phone_number}</TableCell>
+                          <TableCell align="left">{phoneNumber}</TableCell>
 
                           <TableCell align="left">
                             <Label color={statusColor}>{status}</Label>

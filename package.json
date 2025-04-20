@@ -8,7 +8,7 @@
     "start": "react-scripts start",
     "build": "NODE_ENV=production GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
-    "dev": "NODE_ENV=development npm start",
+    "dev": "NODE_ENV=production npm start",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx ./src",
     "lint:fix": "eslint --fix --ext .js,.jsx ./src",

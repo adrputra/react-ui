@@ -42,7 +42,7 @@ const modalButtonStyle = {
 };
 
 export default function InputUserModal({ open, isError, onClose, InquiryUserList, initialData, isDelete }) {
-  const [userData, setUserData] = useState({level_id : "1"});
+  const [userData, setUserData] = useState({levelId : "1"});
   const [isMatchPassword, setIsMatchPassword] = useState(true);
   const [confirmPassword, setConfirmPassword] = useState();
   const [showPassword, setShowPassword] = useState(false);
@@ -128,30 +128,30 @@ export default function InputUserModal({ open, isError, onClose, InquiryUserList
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Iconify icon={'bxs:id-card'} width={50} sx={{ color: 'primary.main' }} />
                     <TextField
-                      id='user_id'
-                      name="user_id"
+                      id='userId'
+                      name="userId"
                       label="Username"
-                      value={userData.user_id || ''}
+                      value={userData.userId || ''}
                       onChange={handleUserData}
                     />
                   </Stack>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
                     <TextField
-                      id='full_name'
-                      name="full_name"
+                      id='fullName'
+                      name="fullName"
                       label="Full Name"
-                      value={userData.full_name || ''}
+                      value={userData.fullName || ''}
                       onChange={handleUserData}
                     />
                   </Stack>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Iconify icon={'ic:round-person-add-alt-1'} width={50} sx={{ color: 'primary.main' }} />
                     <TextField
-                      id='short_name'
-                      name="short_name"
+                      id='shortName'
+                      name="shortName"
                       label="Short Name"
-                      value={userData.short_name || ''}
+                      value={userData.shortName || ''}
                       onChange={handleUserData}
                     />
                   </Stack>
@@ -163,9 +163,9 @@ export default function InputUserModal({ open, isError, onClose, InquiryUserList
                       <Select
                         labelId="level-label"
                         style={{ width: '200px' }}
-                        id="level_id"
-                        name="level_id"
-                        value={userData.level_id || '1'}
+                        id="levelId"
+                        name="levelId"
+                        value={userData.levelId || '1'}
                         label="Level"
                         onChange={handleUserData}
                       >
