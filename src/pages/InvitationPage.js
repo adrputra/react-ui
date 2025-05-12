@@ -279,7 +279,7 @@ export default function InvitationPage() {
                           break;
 
                         default:
-                          statusColor = 'yellow';
+                          statusColor = 'warning';
                           break;
                       }
 
