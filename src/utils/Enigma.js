@@ -102,16 +102,39 @@ export const SendRequest = async (baseURL, request) => {
   }
 };
 
-export const SendRequestExt = (baseURL) => {
+export const SendRequestExt = async (baseURL, request) => {
+  const token = Cookies.get('session');
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    // 'Access-Control-Allow-Origin': '*',
+    // 'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 
   const instance = axios.create({
     baseURL, // Replace with your API base URL
     headers,
+    // withCredentials: true,
   });
 
-  return instance;
+  console.log('SendRequestExt', request);
+
+  try {
+    const res = await instance.post(baseURL, request);
+    return res;
+  } catch (error) {
+    if (error.response.status === 401) {
+      return {
+          data: {
+            code: 401,
+            message: {
+              Description: "Invalid Auth / Session Expired. Please Login Again"
+            }
+          }
+      }
+    }
+    console.error('Error sending request:', error);
+    throw error;
+  }
 };
 

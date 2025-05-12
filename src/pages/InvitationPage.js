@@ -25,7 +25,7 @@ import Iconify from '../components/iconify';
 import Label from '../components/label';
 import Scrollbar from '../components/scrollbar';
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-import InputInvitationModal from '../components/InputInvitationModal';
+import InputInvitationModal, { SendWhatsappModal } from '../components/InputInvitationModal';
 import { MetadataContext } from '../hooks/MetadataContext';
 import { SendRequest } from '../utils/Enigma'
 
@@ -96,6 +96,8 @@ export default function InvitationPage() {
 
   const [rowData, setRowData] = useState(null)
 
+  const [openModalWhatsapp, setOpenModalWhatsapp] = useState(false);
+
   const { metadata } = useContext(MetadataContext);
 
   const handleOpenMenu = (event, code) => {
@@ -162,6 +164,17 @@ export default function InvitationPage() {
     setOpenModal(false);
     setIsDelete(false)
     setRowData(null)
+    setOpenModalWhatsapp(false);
+  };
+
+  const handleOpenModalWhatsapp = (row) => {
+    setOpenModalWhatsapp(true);
+    setRowData(row);
+  };
+
+  const handleCloseModalWhatsapp = () => {
+    setOpenModalWhatsapp(false);
+    setRowData(null);
   };
 
   const handleErrorMessage = (error) => {
@@ -321,7 +334,12 @@ export default function InvitationPage() {
                               Edit
                             </MenuItem>
 
-                            <MenuItem sx={{ color: 'success.main' }}>
+                            <MenuItem sx={{ color: 'success.main' }}
+                              onClick={() => {
+                                handleOpenModalWhatsapp(rowData);
+                                handleCloseMenu();
+                              }}
+                            >
                               <Iconify icon={'bi:send-fill'} sx={{ mr: 2 }} />
                               Send Invitation
                             </MenuItem>
@@ -365,14 +383,23 @@ export default function InvitationPage() {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
-        { openModal && (
+        {openModal && (
           <InputInvitationModal
-          open={openModal}
-          isError={handleErrorMessage}
-          onClose={handleCloseModal}
-          InquiryInvitationList={InquiryInvitationList}
-          initialData = {rowData}
-          isDelete = {isDelete}
+            open={openModal}
+            isError={handleErrorMessage}
+            onClose={handleCloseModal}
+            InquiryInvitationList={InquiryInvitationList}
+            initialData={rowData}
+            isDelete={isDelete}
+          />
+        )}
+        {openModalWhatsapp && (
+          <SendWhatsappModal
+            open={openModalWhatsapp}
+            isError={handleErrorMessage}
+            onClose={handleCloseModal}
+            InquiryInvitationList={InquiryInvitationList}
+            data={rowData}
           />
         )}
       </Container>
