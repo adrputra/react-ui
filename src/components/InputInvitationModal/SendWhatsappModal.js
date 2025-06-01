@@ -35,8 +35,6 @@ const { REACT_APP_SEND_INVITATION } = process.env;
 export default function SendWhatsappModal({ open, onClose, data, isError, InquiryInvitationList }) {
     const { metadata } = useContext(MetadataContext);
 
-    console.log('SendWhatsappModal', REACT_APP_SEND_INVITATION, data);
-
     const sendInvitation = async () => {
         try {
             const request = {
@@ -46,6 +44,9 @@ export default function SendWhatsappModal({ open, onClose, data, isError, Inquir
             const response = await SendRequestExt(REACT_APP_SEND_INVITATION, request);
 
             if (response.status === 200) {
+                const url = response.data.data;
+                window.open(url, '_blank');
+
                 isError({ msg: response.data.message, code: 'success' });
             } else {
                 isError({ msg: response.data.message, code: 'error' });
