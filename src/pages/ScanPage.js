@@ -2,43 +2,48 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Container, Snackbar, Alert } from '@mui/material';
 import Camera from '../components/mobileCamera';
-import { SendRequest } from '../utils/Enigma';
+import { SendRequestExt } from '../utils/Enigma';
 
-const { REACT_APP_ADD_INVITATION } = process.env;
+const { REACT_APP_CONFIRM_ATTENDANCE } = process.env;
 
 export default function ScanPage() {
   const [value, setValue] = useState();
-  const [invitationData, setInvitationData] = useState();
   const [errorMessage, setErrorMessage] = useState({});
 
   const handleValue = (val) => {
       setValue(val);
-      setInvitationData({act : 'c', code: val.code, name: val.name, userId: val.userId, level: val.level, pax: val.pax, phoneNumber: val.phoneNumber, status: 'Attended'});
+  };
+
+  const resetValue = () => {
+    setValue(undefined);
   };
 
   useEffect(() => {
-    if (invitationData !== undefined) {
+    if (value !== undefined) {
         updateInvitation();
     }
-  }, [invitationData]);
+  }, [value]);
 
   const updateInvitation = async () => {
-    console.info('REQ Scan Invitation', invitationData);
+    console.info('REQ Scan Invitation', value);
     try {
-      const response = await SendRequest(REACT_APP_ADD_INVITATION, invitationData);
+      const response = await SendRequestExt(REACT_APP_CONFIRM_ATTENDANCE, { code: value.code });
 
       console.info('RES Scan Invitation', response.data);
 
       if (response.data.code === 200) {
-        setErrorMessage({ msg: response.data.message.Description, code: 'success' });
+        setErrorMessage({ msg: response.data.message, code: 'success' });
       } else {
-        setErrorMessage({ msg: response.data.message.Description, code: 'error' });
-        console.error(response.data.message.Description);
+        setErrorMessage({ msg: response.data.message, code: 'error' });
+        console.error(response.data.message);
       }
     } catch (error) {
       setErrorMessage({ msg: `${error.code} - ${error.message}`, code: 'error' });
       console.error(error);
     } finally {
+      setTimeout(() => {
+        resetValue();
+      }, 1000);
       setTimeout(() => {
         setErrorMessage({});
       }, 5000);
@@ -59,7 +64,7 @@ export default function ScanPage() {
           </Snackbar>
         )}
         <Camera val={handleValue} />
-        <p>SCAN {value && value.name}</p>
+        <p>Data: {value && value.code}</p>
       </Container>
     </>
   );

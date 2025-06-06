@@ -3,13 +3,15 @@ import {
   Button
 } from '@mui/material';
 import QrReader from 'react-qr-scanner';
+import { tr } from 'date-fns/locale';
 
 export default function Camera({ val }) {
   const [state, setState] = useState({
-    delay: 5000,
+    delay: 500,
     result: 'No result',
     scanning: true,
   });
+  const [scannerKey, setScannerKey] = useState(0);
   const [facingMode, setFacingMode] = useState('environment');
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
 
@@ -17,6 +19,7 @@ export default function Camera({ val }) {
     // Check for available video input devices
     navigator.mediaDevices.enumerateDevices().then(devices => {
       const videoInputs = devices.filter(device => device.kind === 'videoinput');
+      console.info('videoInputs', videoInputs);
       setHasMultipleCameras(videoInputs.length > 1);
     });
   }, []);
@@ -28,7 +31,12 @@ export default function Camera({ val }) {
         result: data,
         scanning: false,
       });
-      val(JSON.parse(data.text))
+      val(JSON.parse(data.text));
+
+      setTimeout(() => {
+        setScannerKey((prev) => prev + 1);
+        setState((prev) => ({ ...prev, scanning: true }));
+      }, 1000);
     }
   };
 
@@ -53,13 +61,14 @@ export default function Camera({ val }) {
         </Button>
       )}
       <QrReader
+        key={scannerKey}
         delay={state.delay}
         style={previewStyle}
         onError={handleError}
-        {...(state.scanning ? { onScan: handleScan } : {})}
+        onScan={handleScan}
         constraints={{ video: { facingMode } }}
       />
-      {state.result && state.result.text && <p>{state.result.text}</p>}
+      <p>{state.scanning ? 'Scanning...' : 'Scanning stopped'}</p>
     </div>
   );
 };
